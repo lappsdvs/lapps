@@ -57,7 +57,6 @@ function searchMember(inputMyKad) {
           jawatanSemasa: data[i][COL.jawatanSemasa],
           bangsa: data[i][COL.bangsa],
           jantina: data[i][COL.jantina],
-          alamat: data[i][COL.alamat],
           statusKeahlian: data[i][COL.statusKeahlian],
           alamatPejabat: data[i][COL.alamatPejabat],
           umurSemasa: data[i][COL.umurSemasa],
