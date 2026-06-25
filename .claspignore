@@ -1,0 +1,14 @@
+# Git / docs
+.git/**
+README.md
+SPREADSHEETS.md
+TODO.md
+
+# GitHub Pages / PWA only
+manifest.webmanifest
+service-worker.js
+offline.html
+icons/**
+
+# Other local files
+*.zip
