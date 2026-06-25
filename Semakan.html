@@ -137,6 +137,7 @@
     td { padding: 12px 5px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; vertical-align: top; }
     .label { font-weight: 600; color: #64748b; width: 40%; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
     .value { color: var(--primary); font-weight: 500; }
+    .count-anim { transition: opacity 0.2s ease; }
 
     .warn-msg { 
       background: #fee2e2; 
@@ -231,14 +232,15 @@
                   <tr><td class="label">Alamat</td><td class="value">${item.alamat}</td></tr>
                   <tr><td class="label">Status Keahlian</td><td class="value"><span style="background:#dcfce7; color:#166534; padding:2px 8px; border-radius:6px; font-size:0.8rem;">${item.statusKeahlian}</span></td></tr>
                   <tr><td class="label">Alamat Pejabat</td><td class="value">${item.alamatPejabat}</td></tr>
-                  <tr><td class="label">Umur Semasa</td><td class="value">${item.umurSemasa}</td></tr>
-                  <tr><td class="label">Opsyen Pencen</td><td class="value">${item.opsyenPencen}</td></tr>
-                  <tr><td class="label">Baki Khidmat</td><td class="value">${item.bakiKhidmat}</td></tr>
-                  <tr><td class="label">Yuran Perlu Bayar</td><td class="value" style="color:#ef4444; font-weight:700;">RM ${item.yuranPerluBayar}</td></tr>
+                  <tr><td class="label">Umur Semasa</td><td class="value"><span ${getCountAttrs(item.umurSemasa)}>${item.umurSemasa}</span></td></tr>
+                  <tr><td class="label">Opsyen Pencen</td><td class="value"><span ${getCountAttrs(item.opsyenPencen)}>${item.opsyenPencen}</span></td></tr>
+                  <tr><td class="label">Baki Khidmat</td><td class="value"><span ${getCountAttrs(item.bakiKhidmat)}>${item.bakiKhidmat}</span></td></tr>
+                  <tr><td class="label">Yuran Perlu Bayar</td><td class="value" style="color:#ef4444; font-weight:700;">RM <span ${getCountAttrs(item.yuranPerluBayar)}>${item.yuranPerluBayar}</span></td></tr>
                 </table>
               </div>`;
             });
             resDiv.innerHTML = html;
+            animateNumbers();
           } else {
             resDiv.innerHTML = `
               <div style="margin-top:30px; padding:20px; text-align:center;">
@@ -253,6 +255,43 @@
           resDiv.innerHTML = `<div class="warn-msg">⚠️ Sistem Ralat: ${err.message}</div>`;
         })
         .searchMember(mykad);
+    }
+
+    function getCountAttrs(value) {
+      const text = String(value ?? '').trim();
+      const numericText = text.replace(/,/g, '');
+      if (text === '' || !/^-?\d+(\.\d+)?$/.test(numericText)) return '';
+      return `class="count-anim" data-count="${numericText}" data-final="${text}"`;
+    }
+
+    function animateNumbers() {
+      const numbers = document.querySelectorAll('[data-count]');
+      numbers.forEach(el => {
+        const target = Number(el.dataset.count);
+        const finalValue = el.dataset.final;
+        if (!Number.isFinite(target)) {
+          el.textContent = finalValue;
+          return;
+        }
+
+        const decimals = finalValue.includes('.') ? finalValue.split('.')[1].length : 0;
+        const duration = 800;
+        const startTime = performance.now();
+
+        function update(now) {
+          const progress = Math.min((now - startTime) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = (target * eased).toFixed(decimals);
+
+          if (progress < 1) {
+            requestAnimationFrame(update);
+          } else {
+            el.textContent = finalValue;
+          }
+        }
+
+        requestAnimationFrame(update);
+      });
     }
   </script>
 </body>
