@@ -72,3 +72,168 @@ function searchMember(inputMyKad) {
     return { found: false, error: e.toString() };
   }
 }
+
+// Admin/manual diagnostic sahaja.
+// Jalankan function ini dari Apps Script editor untuk semak kesihatan sheet DataSemakan.
+// Function ini tidak didedahkan kepada public page.
+function healthCheckDataSemakan() {
+  const ssId = "1xTOCPcSXsrmWqM1zACkDxazh1Ki3ZVjDjBEodt9MSRo";
+  const sheetName = "DataSemakan";
+  const expectedHeaders = [
+    "No Ahli",
+    "Nama Ahli",
+    "MyKad",
+    "Jawatan Semasa",
+    "Bangsa",
+    "Jantina",
+    "Alamat",
+    "Status Keahlian",
+    "Alamat Pejabat",
+    "Umur Semasa",
+    "Opsyen Pencen",
+    "Baki Khidmat",
+    "Yuran Perlu Bayar"
+  ];
+  const formulaErrors = ["#REF!", "#N/A", "#VALUE!", "#ERROR!", "#DIV/0!"];
+  const importantColumns = [
+    { index: 0, column: "A", name: "No Ahli" },
+    { index: 1, column: "B", name: "Nama Ahli" },
+    { index: 2, column: "C", name: "MyKad" },
+    { index: 7, column: "H", name: "Status Keahlian" },
+    { index: 12, column: "M", name: "Yuran Perlu Bayar" }
+  ];
+
+  const report = {
+    ok: true,
+    checkedAt: new Date().toISOString(),
+    spreadsheetName: "",
+    sheetName: sheetName,
+    totalRows: 0,
+    totalIssues: 0,
+    issues: []
+  };
+
+  function addIssue(type, severity, row, column, message) {
+    const issue = { type: type, severity: severity, message: message };
+    if (row !== null && row !== undefined) issue.row = row;
+    if (column) issue.column = column;
+    report.issues.push(issue);
+  }
+
+  function isBlank(value) {
+    return value === "" || value === null || value === undefined;
+  }
+
+  function normalizeMyKad(value) {
+    return String(value || "").replace(/-/g, "").trim();
+  }
+
+  try {
+    const ss = SpreadsheetApp.openById(ssId);
+    report.spreadsheetName = ss.getName();
+
+    const sheet = ss.getSheetByName(sheetName);
+    if (!sheet) {
+      addIssue("missing_sheet", "critical", null, null, "Tab DataSemakan tidak dijumpai.");
+      report.ok = false;
+      report.totalIssues = report.issues.length;
+      Logger.log(JSON.stringify(report, null, 2));
+      return report;
+    }
+
+    const range = sheet.getDataRange();
+    const data = range.getValues();
+    const displayData = range.getDisplayValues();
+    report.totalRows = data.length;
+
+    if (data.length === 0) {
+      addIssue("missing_header", "critical", 1, null, "Sheet kosong. Header row tidak wujud.");
+    } else {
+      const headers = data[0];
+      const hasAnyHeader = headers.slice(0, expectedHeaders.length).some(value => !isBlank(value));
+
+      if (!hasAnyHeader) {
+        addIssue("missing_header", "critical", 1, null, "Header row wujud tetapi kosong.");
+      }
+
+      expectedHeaders.forEach((expected, index) => {
+        const actual = String(headers[index] || "").trim();
+        const column = String.fromCharCode(65 + index);
+        if (actual !== expected) {
+          addIssue(
+            "header_mismatch",
+            "warning",
+            1,
+            column,
+            "Header column " + column + " dijangka '" + expected + "' tetapi nilai semasa ialah '" + actual + "'."
+          );
+        }
+      });
+    }
+
+    const seenMyKad = {};
+
+    for (let r = 1; r < data.length; r++) {
+      const rowNumber = r + 1;
+      const row = data[r];
+      const displayRow = displayData[r];
+
+      displayRow.forEach((value, c) => {
+        const text = String(value || "").trim();
+        if (formulaErrors.indexOf(text) !== -1) {
+          addIssue(
+            "formula_error",
+            "critical",
+            rowNumber,
+            String.fromCharCode(65 + c),
+            "Formula error dijumpai: " + text
+          );
+        }
+      });
+
+      importantColumns.forEach(field => {
+        if (isBlank(row[field.index])) {
+          addIssue(
+            "blank_important_field",
+            "warning",
+            rowNumber,
+            field.column,
+            field.name + " kosong."
+          );
+        }
+      });
+
+      const mykad = normalizeMyKad(row[2]);
+      if (mykad !== "") {
+        if (!/^\d{12}$/.test(mykad)) {
+          addIssue(
+            "invalid_mykad",
+            "warning",
+            rowNumber,
+            "C",
+            "MyKad tidak dalam format 12 digit."
+          );
+        }
+
+        if (seenMyKad[mykad]) {
+          addIssue(
+            "duplicate_mykad",
+            "critical",
+            rowNumber,
+            "C",
+            "MyKad duplicate dengan row " + seenMyKad[mykad] + "."
+          );
+        } else {
+          seenMyKad[mykad] = rowNumber;
+        }
+      }
+    }
+  } catch (e) {
+    addIssue("spreadsheet_open_failed", "critical", null, null, "Spreadsheet tidak boleh dibuka: " + e.toString());
+  }
+
+  report.totalIssues = report.issues.length;
+  report.ok = report.issues.filter(issue => issue.severity === "critical").length === 0;
+  Logger.log(JSON.stringify(report, null, 2));
+  return report;
+}
