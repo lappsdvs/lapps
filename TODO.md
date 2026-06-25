@@ -9,6 +9,7 @@ Checklist ini fokus kepada kerja praktikal untuk projek Google Apps Script Web A
 - [x] Add PWA icons `192x192` dan `512x512`.
 - [x] Register service worker dalam halaman utama.
 - [x] Add offline fallback page untuk paparan apabila tiada internet.
+- [x] Basic PWA setup done.
 - [ ] Test PWA install on Android Chrome.
 - [ ] Test PWA install on desktop Chrome / Edge.
 - [x] Semak cache strategy supaya data ahli tidak disimpan secara tidak sengaja di browser.
@@ -27,8 +28,9 @@ Checklist ini fokus kepada kerja praktikal untuk projek Google Apps Script Web A
 
 - [x] Spreadsheet dependency documented.
 - [x] Member result mapping updated.
-- [ ] Add spreadsheet health check untuk detect `#REF!`.
-- [ ] Add spreadsheet health check untuk blank headers.
+- [x] Add spreadsheet health check function `healthCheckDataSemakan()`.
+- [x] Add spreadsheet health check untuk detect `#REF!`.
+- [x] Add spreadsheet health check untuk blank headers.
 - [ ] Add spreadsheet health check untuk broken `IMPORTRANGE`.
 - [ ] Add validation bahawa sheet `DataSemakan` wujud sebelum search.
 - [ ] Add validation bahawa required columns masih cukup dari A sampai M.
@@ -58,7 +60,8 @@ Checklist ini fokus kepada kerja praktikal untuk projek Google Apps Script Web A
 
 ## Admin / Maintenance Tools
 
-- [ ] Add admin-only diagnostic page atau function.
+- [x] Add admin-only diagnostic function.
+- [ ] Admin Health Page.
 - [ ] Add function untuk test spreadsheet access dan return status yang mudah dibaca admin.
 - [ ] Add function untuk kira jumlah row data dalam `DataSemakan`.
 - [ ] Add function untuk check duplicate MyKad.

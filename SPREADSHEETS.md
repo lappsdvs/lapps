@@ -1,133 +1,97 @@
-# Dokumentasi Spreadsheet
+# Dokumentasi Spreadsheet LAPPS
 
-Dokumen ini menyenaraikan Google Spreadsheet, sheet/tab name, function yang menggunakannya, column mapping, dan nota privacy/security untuk projek LAPPS.
-
-Semakan dibuat berdasarkan kod aktif:
-
-- `lapps/Code.js`
-- `lapps/index.html`
-- `lapps/Semakan.html`
+Dokumen ini menerangkan spreadsheet dependency untuk sistem semakan ahli LAPPS.
 
 ## Spreadsheet ID
 
-| Bil | Spreadsheet ID | Kegunaan | Digunakan Oleh |
-|---:|---|---|---|
-| 1 | `1xTOCPcSXsrmWqM1zACkDxazh1Ki3ZVjDjBEodt9MSRo` | Database semakan ahli LAPPS | `testAuth()`, `searchMember(inputMyKad)` |
+| Kegunaan | Spreadsheet ID | Sheet / Tab |
+|---|---|---|
+| Database semakan ahli LAPPS | `1xTOCPcSXsrmWqM1zACkDxazh1Ki3ZVjDjBEodt9MSRo` | `DataSemakan` |
 
-Setakat scan kod aktif, hanya 1 Spreadsheet ID digunakan untuk data semakan ahli.
+## Functions Yang Menggunakan Spreadsheet
 
-## Sheet / Tab Name
+| Function | Fail | Tujuan |
+|---|---|---|
+| `testAuth()` | `Code.js` | Test akses kepada spreadsheet. |
+| `searchMember(inputMyKad)` | `Code.js` | Cari ahli berdasarkan MyKad di column C. |
+| `healthCheckDataSemakan()` | `Code.js` | Admin/manual diagnostic untuk semak kesihatan `DataSemakan`. |
 
-| Spreadsheet ID | Sheet / Tab Name | Function Yang Guna | Tujuan |
+## DataSemakan Dan IMPORTRANGE
+
+`DataSemakan` bergantung kepada data yang dibawa masuk melalui `IMPORTRANGE`.
+
+Risiko penting:
+
+- Jika source spreadsheet berubah, `DataSemakan` boleh gagal.
+- Jika source tab name berubah, `DataSemakan` mungkin menghasilkan `#REF!`.
+- Jika permission `IMPORTRANGE` belum dibenarkan, data mungkin tidak keluar.
+- Jika header source berubah, mapping semakan boleh lari.
+
+Gunakan `healthCheckDataSemakan()` untuk detect:
+
+- `#REF!`, `#N/A`, `#VALUE!`, `#ERROR!`, `#DIV/0!`.
+- Header mismatch.
+- Blank MyKad untuk row `AHLI AKTIF`.
+- Blank important fields untuk row `AHLI AKTIF`.
+- Duplicate MyKad.
+- Invalid MyKad format.
+
+## Expected Headers A-M
+
+Health check membandingkan header dengan normalisasi:
+
+- Ignore case.
+- Ignore newline.
+- Ignore extra spaces.
+- Column M pass jika actual header mengandungi `AHLI PERLU BAYAR`.
+
+| Column | Expected Header |
+|---|---|
+| A | `NO AHLI` |
+| B | `NAMA AHLI` |
+| C | `MYKAD AHLI` |
+| D | `JAWATAN SEMASA` |
+| E | `BANGSA` |
+| F | `JANTINA` |
+| G | `ALAMAT` |
+| H | `STATUS KEAHLIAN` |
+| I | `ALAMAT PEJABAT` |
+| J | `UMUR SEMASA` |
+| K | `OPSYEN PENCEN PADA UMUR` |
+| L | `BAKI PERKHIDMATAN` |
+| M | `AHLI PERLU BAYAR` |
+
+## Column Mapping Dalam `searchMember(inputMyKad)`
+
+| Named Field | Column | Kegunaan | Dipaparkan |
 |---|---|---|---|
-| `1xTOCPcSXsrmWqM1zACkDxazh1Ki3ZVjDjBEodt9MSRo` | `DataSemakan` | `searchMember(inputMyKad)` | Menyimpan rekod ahli dan digunakan untuk carian berdasarkan No. MyKad. |
-
-Kod yang membuka sheet:
-
-```js
-const ssId = "1xTOCPcSXsrmWqM1zACkDxazh1Ki3ZVjDjBEodt9MSRo";
-const ss = SpreadsheetApp.openById(ssId);
-const sheet = ss.getSheetByName("DataSemakan");
-```
-
-## Function Yang Menggunakan Spreadsheet
-
-| Function | Fail | Spreadsheet / Sheet | Operasi |
-|---|---|---|---|
-| `testAuth()` | `lapps/Code.js` | Spreadsheet ID sahaja | Buka spreadsheet dengan `SpreadsheetApp.openById()` dan log nama spreadsheet. |
-| `searchMember(inputMyKad)` | `lapps/Code.js` | `DataSemakan` | Baca semua data dengan `getDataRange().getValues()`, cari MyKad di column C, return result ke frontend. |
-| `check()` | `lapps/Semakan.html` | Tidak akses spreadsheet secara direct | Panggil backend melalui `google.script.run.searchMember(mykad)`. |
-
-## Column Mapping: `DataSemakan`
-
-Kod membaca semua row daripada `DataSemakan` dan mula loop dari row kedua, jadi row pertama dianggap header.
-
-Carian MyKad dibuat pada column C:
-
-```js
-let mykadSheet = String(data[i][2]).replace(/-/g, "").trim();
-```
-
-| Array Index | Column | Field / Nama Data | Digunakan Untuk | Dipaparkan Di Frontend |
-|---:|---|---|---|---|
-| `data[i][0]` | A | No Ahli | Return sebagai `colA` | Ya |
-| `data[i][1]` | B | Nama Ahli | Return sebagai `colB` | Ya |
-| `data[i][2]` | C | MyKad | Search key dan return sebagai `colC` | Ya |
-| `data[i][3]` | D | Jawatan Semasa | Return sebagai `colD` | Ya |
-| `data[i][4]` | E | Bangsa | Return sebagai `colE` | Tidak dalam paparan semasa |
-| `data[i][5]` | F | Jantina | Return sebagai `colF` | Tidak dalam paparan semasa |
-| `data[i][6]` | G | Alamat | Return sebagai `colG` | Tidak dalam paparan semasa |
-| `data[i][7]` | H | Status Keahlian | Return sebagai `colH` | Ya |
-| `data[i][8]` | I | Alamat Pejabat | Return sebagai `colI` | Tidak dalam paparan semasa |
-| `data[i][9]` | J | Umur Semasa | Return sebagai `colJ` | Tidak dalam paparan semasa |
-| `data[i][10]` | K | Opsyen Pencen | Return sebagai `colK` | Tidak dalam paparan semasa |
-| `data[i][11]` | L | Baki Perkhidmatan | Return sebagai `colL` | Ya |
-| `data[i][12]` | M | Ahli Perlu Bayar / Yuran | Return sebagai `colM` | Ya, dipaparkan sebagai tunggakan yuran |
-
-## Data Flow Ringkas
-
-```text
-User masukkan No. MyKad
-        ↓
-Semakan.html -> check()
-        ↓
-google.script.run.searchMember(mykad)
-        ↓
-Code.js -> searchMember(inputMyKad)
-        ↓
-SpreadsheetApp.openById(...)
-        ↓
-getSheetByName("DataSemakan")
-        ↓
-Cari padanan di column C
-        ↓
-Return object ke frontend
-```
-
-## Dependency Dan Risiko Struktur Data
-
-Sistem boleh gagal atau return data salah jika:
-
-- Spreadsheet ID berubah.
-- Sheet name `DataSemakan` berubah.
-- Column MyKad bukan lagi column C.
-- Column A hingga M disusun semula tanpa ubah kod.
-- Row pertama bukan header tetapi data sebenar.
-- MyKad dalam spreadsheet disimpan dengan format tidak konsisten.
-- Akaun Apps Script owner tiada permission kepada spreadsheet.
+| `noAhli` | A | No. ahli | Ya |
+| `namaAhli` | B | Nama ahli | Ya |
+| `mykad` | C | Search/matching sahaja | Tidak |
+| `jawatanSemasa` | D | Jawatan semasa | Ya |
+| `bangsa` | E | Bangsa | Ya |
+| `jantina` | F | Jantina | Ya |
+| `alamat` | G | Alamat | Ya |
+| `statusKeahlian` | H | Status keahlian | Ya |
+| `alamatPejabat` | I | Alamat pejabat | Ya |
+| `umurSemasa` | J | Umur semasa | Ya, animated jika numeric |
+| `opsyenPencen` | K | Opsyen pencen | Ya, animated jika numeric |
+| `bakiKhidmat` | L | Baki khidmat | Ya, animated jika numeric |
+| `yuranPerluBayar` | M | Yuran perlu bayar | Ya, animated jika numeric |
 
 ## Privacy / Security Notes
 
-Data dalam spreadsheet mengandungi PII atau maklumat peribadi:
-
-- No. MyKad.
-- Nama penuh.
-- Alamat rumah.
-- Alamat pejabat.
-- Status keahlian.
-- Maklumat baki perkhidmatan.
-- Maklumat yuran / tunggakan.
-
-Cadangan kawalan:
-
+- MyKad ialah sensitive data dan tidak dipaparkan pada public result page.
+- MyKad masih digunakan untuk search input dan matching dalam backend.
 - Jangan share spreadsheet sebagai public.
-- Beri akses kepada admin yang perlu sahaja.
-- Gunakan Google account organisasi untuk owner Apps Script.
-- Pertimbangkan masking MyKad dalam paparan, contohnya hanya tunjuk 4 digit terakhir.
-- Kurangkan data yang dihantar ke frontend jika tidak perlu. Kod semasa return column A hingga M untuk setiap result.
-- Semak semula sama ada alamat, bangsa, jantina, umur, dan opsyen pencen perlu dihantar ke browser.
-- Pastikan deployment web app tidak memberi akses edit spreadsheet kepada pengguna luar.
-- Audit access Google Drive / Google Sheets secara berkala.
+- Jangan cache semakan result dalam service worker.
+- Review semula field yang dihantar ke frontend jika polisi data berubah.
 
-## Nota Untuk Maintenance
+## Maintenance Notes
 
-Jika struktur sheet berubah, update kedua-dua tempat ini:
+Jika struktur spreadsheet berubah:
 
-1. Kod dalam `searchMember(inputMyKad)` di `lapps/Code.js`.
-2. Dokumentasi column mapping dalam fail ini.
-
-Jika spreadsheet baru digunakan, update:
-
-- Spreadsheet ID dalam `testAuth()`.
-- Spreadsheet ID dalam `searchMember(inputMyKad)`.
-- Table `Spreadsheet ID` dalam fail ini.
+1. Update mapping dalam `searchMember(inputMyKad)`.
+2. Update expected headers dalam `healthCheckDataSemakan()`.
+3. Update dokumen ini.
+4. Jalankan `healthCheckDataSemakan()` dari Apps Script editor.
