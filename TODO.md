@@ -4,14 +4,14 @@ Checklist ini fokus kepada kerja praktikal untuk projek Google Apps Script Web A
 
 ## PWA Roadmap
 
-- [ ] Create `manifest.webmanifest`.
-- [ ] Create `service-worker.js`.
+- [x] Create `manifest.webmanifest`.
+- [x] Create `service-worker.js`.
 - [ ] Add PWA icons `192x192` dan `512x512`.
-- [ ] Register service worker dalam halaman utama.
-- [ ] Add offline fallback page untuk paparan apabila tiada internet.
+- [x] Register service worker dalam halaman utama.
+- [x] Add offline fallback page untuk paparan apabila tiada internet.
 - [ ] Test PWA install on Android Chrome.
 - [ ] Test PWA install on desktop Chrome / Edge.
-- [ ] Semak cache strategy supaya data ahli tidak disimpan secara tidak sengaja di browser.
+- [x] Semak cache strategy supaya data ahli tidak disimpan secara tidak sengaja di browser.
 
 ## Security / Privacy
 

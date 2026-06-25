@@ -1,0 +1,12 @@
+{
+  "name": "LAPPS KPMVDGBKSM",
+  "short_name": "LAPPS",
+  "description": "Gerbang Digital Ahli Veterinar LAPPS / KPMVDGBKSM.",
+  "start_url": "/lapps/",
+  "scope": "/lapps/",
+  "display": "standalone",
+  "background_color": "#f1f5f9",
+  "theme_color": "#0f172a",
+  "lang": "ms",
+  "orientation": "portrait-primary"
+}

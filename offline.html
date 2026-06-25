@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LAPPS | Offline</title>
+  <meta name="theme-color" content="#0f172a">
+  <style>
+    :root {
+      --primary: #0f172a;
+      --accent: #059669;
+      --bg: #f1f5f9;
+      --text: #1e293b;
+      --muted: #64748b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    main {
+      width: 100%;
+      max-width: 520px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 32px 24px;
+      box-shadow: 0 20px 35px rgba(15, 23, 42, 0.12);
+    }
+
+    h1 {
+      color: var(--primary);
+      font-size: 1.45rem;
+      margin-bottom: 10px;
+    }
+
+    p { color: var(--muted); margin-bottom: 22px; }
+
+    a {
+      display: inline-block;
+      background: var(--accent);
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 700;
+      border-radius: 12px;
+      padding: 12px 18px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Anda sedang offline</h1>
+    <p>Halaman utama LAPPS boleh dibuka semula apabila sambungan internet tersedia. Semakan ahli memerlukan talian internet kerana ia membaca data Google Apps Script dan Spreadsheet.</p>
+    <a href="/lapps/">Cuba semula</a>
+  </main>
+</body>
+</html>

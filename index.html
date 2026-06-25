@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <link rel="manifest" href="manifest.webmanifest">
   <title>LAPPS KPMVDGBKSM | Utama</title>
   
   <!-- Fonts -->
@@ -310,6 +312,14 @@
     }
     function googleTranslateElementInit() { 
       new google.translate.TranslateElement({pageLanguage: 'ms'}, 'google_translate_element'); 
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('service-worker.js').catch(function(error) {
+          console.warn('Service worker registration failed:', error);
+        });
+      });
     }
   </script>
   <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
