@@ -10,6 +10,11 @@ function doGet(e) {
                        .setTitle('Semakan Ahli - LAPPS')
                        .addMetaTag('viewport', 'width=device-width, initial-scale=1')
                        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  } else if (page == 'admin') {
+    return HtmlService.createTemplateFromFile('Admin').evaluate()
+                       .setTitle('Admin Health Check - LAPPS')
+                       .addMetaTag('viewport', 'width=device-width, initial-scale=1')
+                       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   }
 }
 
@@ -70,6 +75,23 @@ function searchMember(inputMyKad) {
   } catch (e) {
     return { found: false, error: e.toString() };
   }
+}
+
+// Admin diagnostic wrapper sahaja.
+// PIN disimpan dalam Script Properties key ADMIN_PIN.
+// Public page tidak memanggil healthCheckDataSemakan() secara terus.
+function runAdminHealthCheck(pin) {
+  const adminPin = PropertiesService.getScriptProperties().getProperty("ADMIN_PIN");
+
+  if (!adminPin) {
+    return { ok: false, error: "ADMIN_PIN not set" };
+  }
+
+  if (String(pin || "") !== adminPin) {
+    return { ok: false, error: "Unauthorized" };
+  }
+
+  return healthCheckDataSemakan();
 }
 
 // Admin/manual diagnostic sahaja.

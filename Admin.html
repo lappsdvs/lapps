@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --primary: #0f172a;
+      --accent: #1a8c7a;
+      --bg: #f8fafc;
+      --text: #334155;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --danger: #dc2626;
+      --warn: #d97706;
+      --ok: #15803d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.5;
+      padding: 20px;
+    }
+
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 16px 32px rgba(15, 23, 42, 0.1);
+      padding: 28px;
+    }
+
+    h1 {
+      color: var(--primary);
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+
+    .hint {
+      color: var(--muted);
+      margin-bottom: 22px;
+      font-size: 0.95rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 14px;
+      font-size: 1rem;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      background: var(--primary);
+      color: #ffffff;
+      cursor: pointer;
+      font-weight: 700;
+      padding: 13px 18px;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.65;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #f8fafc;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .metric strong {
+      display: block;
+      color: var(--primary);
+      margin-top: 4px;
+      word-break: break-word;
+    }
+
+    .status-ok { color: var(--ok); }
+    .status-bad { color: var(--danger); }
+
+    .message {
+      border-radius: 12px;
+      margin-top: 14px;
+      padding: 12px;
+      background: #fee2e2;
+      color: #991b1b;
+      font-weight: 700;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin-top: 16px;
+      width: 100%;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--border);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 0.9rem;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+
+    .critical { color: var(--danger); font-weight: 700; }
+    .warning { color: var(--warn); font-weight: 700; }
+    .info { color: var(--muted); font-weight: 700; }
+
+    .back-link {
+      display: inline-block;
+      color: var(--muted);
+      font-weight: 700;
+      margin-top: 22px;
+      text-decoration: none;
+    }
+
+    .back-link:hover { color: var(--accent); }
+
+    @media (max-width: 760px) {
+      main { padding: 20px; }
+      .form-row { grid-template-columns: 1fr; }
+      .summary { grid-template-columns: 1fr 1fr; }
+      table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Admin Health Check</h1>
+    <p class="hint">Diagnostic admin sahaja. Masukkan PIN untuk semak kesihatan sheet DataSemakan.</p>
+
+    <div class="form-row">
+      <input type="password" id="pinInput" placeholder="Admin PIN" autocomplete="current-password">
+      <button id="runBtn" onclick="runHealthCheck()">Run Health Check</button>
+    </div>
+
+    <div id="result"></div>
+
+    <a href="<?= ScriptApp.getService().getUrl(); ?>?page=index" class="back-link">← Kembali ke Halaman Utama</a>
+  </main>
+
+  <script>
+    document.getElementById('pinInput').addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') runHealthCheck();
+    });
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function runHealthCheck() {
+      const pin = document.getElementById('pinInput').value;
+      const resultDiv = document.getElementById('result');
+      const runBtn = document.getElementById('runBtn');
+
+      runBtn.disabled = true;
+      resultDiv.innerHTML = '<p class="hint">Running health check...</p>';
+
+      google.script.run
+        .withSuccessHandler(function(report) {
+          runBtn.disabled = false;
+          renderReport(report);
+        })
+        .withFailureHandler(function(error) {
+          runBtn.disabled = false;
+          resultDiv.innerHTML = '<div class="message">Sistem ralat: ' + escapeHtml(error.message) + '</div>';
+        })
+        .runAdminHealthCheck(pin);
+    }
+
+    function renderReport(report) {
+      const resultDiv = document.getElementById('result');
+
+      if (!report || report.error) {
+        resultDiv.innerHTML = '<div class="message">' + escapeHtml(report && report.error ? report.error : 'No report returned') + '</div>';
+        return;
+      }
+
+      const issues = Array.isArray(report.issues) ? report.issues.slice(0, 20) : [];
+      const rows = issues.map(issue => {
+        const severity = escapeHtml(issue.severity || 'info');
+        return `
+          <tr>
+            <td>${escapeHtml(issue.row || '')}</td>
+            <td>${escapeHtml(issue.column || '')}</td>
+            <td>${escapeHtml(issue.type || '')}</td>
+            <td class="${severity}">${severity}</td>
+            <td>${escapeHtml(issue.message || '')}</td>
+          </tr>`;
+      }).join('');
+
+      resultDiv.innerHTML = `
+        <div class="summary">
+          <div class="metric"><span>OK</span><strong class="${report.ok ? 'status-ok' : 'status-bad'}">${escapeHtml(report.ok)}</strong></div>
+          <div class="metric"><span>Spreadsheet</span><strong>${escapeHtml(report.spreadsheetName)}</strong></div>
+          <div class="metric"><span>Sheet</span><strong>${escapeHtml(report.sheetName)}</strong></div>
+          <div class="metric"><span>Total Rows</span><strong>${escapeHtml(report.totalRows)}</strong></div>
+          <div class="metric"><span>Total Issues</span><strong>${escapeHtml(report.totalIssues)}</strong></div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Row</th>
+              <th>Column</th>
+              <th>Type</th>
+              <th>Severity</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody>${rows || '<tr><td colspan="5">No issues in first 20 results.</td></tr>'}</tbody>
+        </table>`;
+    }
+  </script>
+</body>
+</html>
