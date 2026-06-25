@@ -2,6 +2,12 @@
 
 Dokumen ini menerangkan spreadsheet dependency untuk sistem semakan ahli LAPPS.
 
+Official URLs:
+
+- GitHub Pages: https://lappsdvs.github.io/lapps/
+- GAS Semakan URL: https://script.google.com/macros/s/AKfycbwF-x9eezUErBoAL73rqp8k9tMgdISMXwk0wBOGtRfiG15jhAUiNbyJ6Kd8jyoUQgzpHw/exec?page=semakan
+- Spreadsheet URL: https://docs.google.com/spreadsheets/d/1xTOCPcSXsrmWqM1zACkDxazh1Ki3ZVjDjBEodt9MSRo/edit
+
 ## Spreadsheet ID
 
 | Kegunaan | Spreadsheet ID | Sheet / Tab |
@@ -71,7 +77,7 @@ Health check membandingkan header dengan normalisasi:
 | `jawatanSemasa` | D | Jawatan semasa | Ya |
 | `bangsa` | E | Bangsa | Ya |
 | `jantina` | F | Jantina | Ya |
-| `alamat` | G | Alamat | Ya |
+| `alamat` | G | Alamat rumah / residential address | Tidak. Tidak dihantar ke frontend untuk public result. |
 | `statusKeahlian` | H | Status keahlian | Ya |
 | `alamatPejabat` | I | Alamat pejabat | Ya |
 | `umurSemasa` | J | Umur semasa | Ya, animated jika numeric |
@@ -79,10 +85,19 @@ Health check membandingkan header dengan normalisasi:
 | `bakiKhidmat` | L | Baki khidmat | Ya, animated jika numeric |
 | `yuranPerluBayar` | M | Yuran perlu bayar | Ya, animated jika numeric |
 
+Nota paparan semakan:
+
+- MyKad tidak dipaparkan dalam public result page.
+- Alamat rumah / residential address tidak dipaparkan.
+- `Alamat Pejabat` kekal dipaparkan.
+- Numeric result animation sudah ditingkatkan kepada `1800ms`, dengan font lebih besar dan yuran animation yang lebih jelas.
+
 ## Privacy / Security Notes
 
 - MyKad ialah sensitive data dan tidak dipaparkan pada public result page.
 - MyKad masih digunakan untuk search input dan matching dalam backend.
+- Alamat rumah / residential address tidak dihantar ke frontend.
+- `Alamat Pejabat` masih dipaparkan.
 - Jangan share spreadsheet sebagai public.
 - Jangan cache semakan result dalam service worker.
 - Review semula field yang dihantar ke frontend jika polisi data berubah.

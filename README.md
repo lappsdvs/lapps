@@ -13,6 +13,12 @@ Public URL GitHub Pages:
 https://lappsdvs.github.io/lapps/
 ```
 
+Official URLs:
+
+- GitHub Pages: https://lappsdvs.github.io/lapps/
+- GAS Semakan URL: https://script.google.com/macros/s/AKfycbwF-x9eezUErBoAL73rqp8k9tMgdISMXwk0wBOGtRfiG15jhAUiNbyJ6Kd8jyoUQgzpHw/exec?page=semakan
+- Spreadsheet URL: https://docs.google.com/spreadsheets/d/1xTOCPcSXsrmWqM1zACkDxazh1Ki3ZVjDjBEodt9MSRo/edit
+
 ## Project Overview
 
 Fungsi utama:
@@ -22,6 +28,8 @@ Fungsi utama:
 - Sediakan button **Semakan Status** ke Google Apps Script semakan page.
 - Cari rekod ahli berdasarkan input MyKad.
 - Papar keputusan ahli tanpa memaparkan MyKad pada public result page.
+- Papar keputusan ahli tanpa memaparkan alamat rumah / residential address.
+- `Alamat Pejabat` kekal dipaparkan.
 - Papar numeric fields dengan subtle count-up animation / number animation.
 - Sokong basic PWA installable experience.
 
@@ -32,11 +40,17 @@ Fungsi utama:
 - Spreadsheet dependency documented.
 - Semakan link fixed for GitHub Pages.
 - MyKad hidden from public result page.
+- Residential/home address hidden from public result page.
+- `Alamat Pejabat` remains displayed.
 - Member result mapping updated menggunakan named fields seperti `noAhli`, `namaAhli`, `jawatanSemasa`.
 - Number animation on result untuk numeric fields.
+- Number animation improved: duration `1800ms`, bigger animated numbers, dan yuran animation lebih jelas.
+- GAS semakan URL updated to latest deployment.
 - Basic PWA installable setup.
 - PWA app icons `192x192` dan `512x512`.
 - Offline fallback page.
+- PWA service worker cache updated to `lapps-v2`.
+- PWA uses network-first for navigation dan `index.html` untuk kurangkan isu old cache.
 - Spreadsheet health check function: `healthCheckDataSemakan()`.
 
 ## File Structure
@@ -76,6 +90,8 @@ PWA setup berada di GitHub Pages layer sahaja.
 - `manifest.webmanifest` menjadikan app installable.
 - `icons/icon-192.png` dan `icons/icon-512.png` digunakan sebagai app icons.
 - `service-worker.js` cache static GitHub Pages files sahaja.
+- Cache version semasa: `lapps-v2`.
+- Navigation dan `/lapps/index.html` guna network-first strategy supaya user lebih cepat dapat versi latest.
 - `offline.html` dipaparkan sebagai fallback jika user offline.
 - Semakan ahli kekal online-only kerana ia bergantung kepada `google.script.run`, Google Apps Script, dan Google Spreadsheet.
 
@@ -93,7 +109,7 @@ Service worker tidak cache Google Apps Script semakan page atau result data.
 5. Test URL semakan:
 
 ```text
-https://script.google.com/macros/s/[DEPLOY_ID]/exec?page=semakan
+https://script.google.com/macros/s/AKfycbwF-x9eezUErBoAL73rqp8k9tMgdISMXwk0wBOGtRfiG15jhAUiNbyJ6Kd8jyoUQgzpHw/exec?page=semakan
 ```
 
 6. Jalankan `healthCheckDataSemakan()` secara manual dari Apps Script editor untuk semak spreadsheet.
@@ -118,6 +134,8 @@ Rujuk [SPREADSHEETS.md](./SPREADSHEETS.md) untuk mapping column dan nota IMPORTR
 
 - MyKad digunakan untuk search input dan matching sahaja.
 - MyKad tidak dipaparkan dalam public result page.
+- Alamat rumah / residential address tidak dihantar ke frontend dan tidak dipaparkan.
+- `Alamat Pejabat` masih dipaparkan kerana diperlukan untuk rujukan kerja.
 - Jangan cache Google Apps Script semakan result.
 - Jangan jadikan Google Spreadsheet public.
 - Hadkan edit access spreadsheet kepada admin yang sah.

@@ -10,6 +10,7 @@ Checklist ini fokus kepada kerja praktikal untuk projek Google Apps Script Web A
 - [x] Register service worker dalam halaman utama.
 - [x] Add offline fallback page untuk paparan apabila tiada internet.
 - [x] Basic PWA setup done.
+- [x] PWA cache update behavior done (`lapps-v2`, network-first navigation/index.html).
 - [ ] Test PWA install on Android Chrome.
 - [ ] Test PWA install on desktop Chrome / Edge.
 - [x] Semak cache strategy supaya data ahli tidak disimpan secara tidak sengaja di browser.
@@ -17,6 +18,7 @@ Checklist ini fokus kepada kerja praktikal untuk projek Google Apps Script Web A
 ## Security / Privacy
 
 - [x] MyKad hidden from public result page.
+- [x] Privacy display fix done: MyKad dan alamat rumah disembunyikan.
 - [ ] Add privacy notice pada halaman semakan.
 - [ ] Add masking policy untuk sensitive fields seperti MyKad, alamat, yuran, dan status keahlian.
 - [ ] Semak semula field yang dihantar dari `Code.js` ke frontend supaya hanya data perlu sahaja dihantar.
@@ -41,7 +43,9 @@ Checklist ini fokus kepada kerja praktikal untuk projek Google Apps Script Web A
 ## Google Apps Script Deployment
 
 - [x] Semakan link fixed for GitHub Pages.
+- [x] GAS semakan URL updated to latest deployment.
 - [ ] Add deployment checklist untuk GitHub + GAS.
+- [ ] Setup clasp for GAS sync.
 - [ ] Pastikan URL GitHub Pages untuk halaman utama berfungsi.
 - [ ] Pastikan URL GAS `/exec?page=semakan` berfungsi.
 - [ ] Pastikan `Code.js`, `index.html`, dan `Semakan.html` versi local sudah disalin ke Apps Script.
@@ -51,6 +55,7 @@ Checklist ini fokus kepada kerja praktikal untuk projek Google Apps Script Web A
 
 ## UI / UX Improvements
 
+- [x] Improved number animation done: `1800ms`, larger animated numbers, yuran animation visible.
 - [ ] Add loading state yang jelas semasa carian sedang berjalan.
 - [ ] Add message ringkas jika input MyKad bukan 12 digit.
 - [ ] Add mobile test untuk table result supaya label dan value mudah dibaca.
