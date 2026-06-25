@@ -6,6 +6,7 @@ Official URLs:
 
 - GitHub Pages: https://lappsdvs.github.io/lapps/
 - GAS Semakan URL: https://script.google.com/macros/s/AKfycbwF-x9eezUErBoAL73rqp8k9tMgdISMXwk0wBOGtRfiG15jhAUiNbyJ6Kd8jyoUQgzpHw/exec?page=semakan
+- GAS Admin Health URL: https://script.google.com/macros/s/AKfycbwF-x9eezUErBoAL73rqp8k9tMgdISMXwk0wBOGtRfiG15jhAUiNbyJ6Kd8jyoUQgzpHw/exec?page=admin
 - Spreadsheet URL: https://docs.google.com/spreadsheets/d/1xTOCPcSXsrmWqM1zACkDxazh1Ki3ZVjDjBEodt9MSRo/edit
 
 ## Spreadsheet ID
@@ -21,6 +22,7 @@ Official URLs:
 | `testAuth()` | `Code.js` | Test akses kepada spreadsheet. |
 | `searchMember(inputMyKad)` | `Code.js` | Cari ahli berdasarkan MyKad di column C. |
 | `healthCheckDataSemakan()` | `Code.js` | Admin/manual diagnostic untuk semak kesihatan `DataSemakan`. |
+| `runAdminHealthCheck(pin)` | `Code.js` | PIN-protected wrapper untuk Admin Health Page. |
 
 ## DataSemakan Dan IMPORTRANGE
 
@@ -41,6 +43,18 @@ Gunakan `healthCheckDataSemakan()` untuk detect:
 - Blank important fields untuk row `AHLI AKTIF`.
 - Duplicate MyKad.
 - Invalid MyKad format.
+
+Admin Health Page membantu kenal pasti active members dengan blank MyKad. Untuk isu MyKad kosong pada row `AHLI AKTIF`, admin table memaparkan `No Ahli` dan `Nama Ahli` supaya kerja cleanup data lebih mudah.
+
+Admin Health Page:
+
+- PIN protected menggunakan Script Properties key `ADMIN_PIN`.
+- Menjalankan `runAdminHealthCheck(pin)`.
+- Memaparkan health check summary.
+- Memaparkan first 20 issues.
+- Issue table columns: row, column, noAhli, memberName, type, severity, message.
+- Tidak memaparkan nilai MyKad.
+- Tidak memaparkan residential/home address.
 
 ## Expected Headers A-M
 

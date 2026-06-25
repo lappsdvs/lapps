@@ -17,6 +17,7 @@ Official URLs:
 
 - GitHub Pages: https://lappsdvs.github.io/lapps/
 - GAS Semakan URL: https://script.google.com/macros/s/AKfycbwF-x9eezUErBoAL73rqp8k9tMgdISMXwk0wBOGtRfiG15jhAUiNbyJ6Kd8jyoUQgzpHw/exec?page=semakan
+- GAS Admin Health URL: https://script.google.com/macros/s/AKfycbwF-x9eezUErBoAL73rqp8k9tMgdISMXwk0wBOGtRfiG15jhAUiNbyJ6Kd8jyoUQgzpHw/exec?page=admin
 - Spreadsheet URL: https://docs.google.com/spreadsheets/d/1xTOCPcSXsrmWqM1zACkDxazh1Ki3ZVjDjBEodt9MSRo/edit
 
 ## Project Overview
@@ -52,6 +53,8 @@ Fungsi utama:
 - PWA service worker cache updated to `lapps-v2`.
 - PWA uses network-first for navigation dan `index.html` untuk kurangkan isu old cache.
 - Spreadsheet health check function: `healthCheckDataSemakan()`.
+- Admin Health Page completed.
+- Admin PIN protection completed menggunakan Script Properties key `ADMIN_PIN`.
 
 ## File Structure
 
@@ -80,8 +83,31 @@ LAPPSDVS/
 | `testAuth()` dalam `Code.js` | Test akses Apps Script kepada spreadsheet. |
 | `searchMember(inputMyKad)` dalam `Code.js` | Cari ahli berdasarkan MyKad dan return named fields ke frontend. |
 | `healthCheckDataSemakan()` dalam `Code.js` | Admin/manual diagnostic untuk semak kesihatan `DataSemakan`. |
+| `runAdminHealthCheck(pin)` dalam `Code.js` | PIN-protected wrapper yang baca `ADMIN_PIN` dan jalankan health check jika authorized. |
 | `check()` dalam `Semakan.html` | Panggil `google.script.run.searchMember(mykad)` dan render result. |
 | `animateNumbers()` dalam `Semakan.html` | Count-up animation untuk numeric result values. |
+
+## Admin Health Page
+
+Admin Health Page:
+
+```text
+https://script.google.com/macros/s/AKfycbwF-x9eezUErBoAL73rqp8k9tMgdISMXwk0wBOGtRfiG15jhAUiNbyJ6Kd8jyoUQgzpHw/exec?page=admin
+```
+
+Security:
+
+- PIN protected menggunakan Script Properties key `ADMIN_PIN`.
+- Frontend memanggil `google.script.run.runAdminHealthCheck(pin)`.
+- `runAdminHealthCheck(pin)` hanya menjalankan `healthCheckDataSemakan()` jika PIN betul.
+
+Paparan:
+
+- Health check summary.
+- First 20 issues.
+- Table columns: row, column, noAhli, memberName, type, severity, message.
+- Tidak memaparkan nilai MyKad.
+- Tidak memaparkan residential/home address.
 
 ## PWA Notes
 

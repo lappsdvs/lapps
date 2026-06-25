@@ -19,6 +19,7 @@ Checklist ini fokus kepada kerja praktikal untuk projek Google Apps Script Web A
 
 - [x] MyKad hidden from public result page.
 - [x] Privacy display fix done: MyKad dan alamat rumah disembunyikan.
+- [x] Admin PIN protection done.
 - [ ] Add privacy notice pada halaman semakan.
 - [ ] Add masking policy untuk sensitive fields seperti MyKad, alamat, yuran, dan status keahlian.
 - [ ] Semak semula field yang dihantar dari `Code.js` ke frontend supaya hanya data perlu sahaja dihantar.
@@ -66,12 +67,13 @@ Checklist ini fokus kepada kerja praktikal untuk projek Google Apps Script Web A
 ## Admin / Maintenance Tools
 
 - [x] Add admin-only diagnostic function.
-- [ ] Admin Health Page.
+- [x] Admin Health Page.
 - [ ] Add function untuk test spreadsheet access dan return status yang mudah dibaca admin.
 - [ ] Add function untuk kira jumlah row data dalam `DataSemakan`.
 - [ ] Add function untuk check duplicate MyKad.
 - [ ] Add function untuk list missing required fields.
 - [ ] Add simple maintenance log untuk catat tarikh deployment dan perubahan penting.
+- [ ] Admin page export/download report CSV.
 
 ## Documentation
 
