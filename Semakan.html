@@ -223,13 +223,18 @@
               html += `
               <div class="result-item">
                 <table>
-                  <tr><td class="label">No. Ahli</td><td class="value">${item.colA}</td></tr>
-                  <tr><td class="label">Nama Penuh</td><td class="value" style="text-transform:uppercase; font-weight:700; color:#0f172a;">${item.colB}</td></tr>
-                  <tr><td class="label">MyKad</td><td class="value">${item.colC}</td></tr>
-                  <tr><td class="label">Jawatan</td><td class="value">${item.colD}</td></tr>
-                  <tr><td class="label">Status</td><td class="value"><span style="background:#dcfce7; color:#166534; padding:2px 8px; border-radius:6px; font-size:0.8rem;">${item.colH}</span></td></tr>
-                  <tr><td class="label">Baki Khidmat</td><td class="value">${item.colL}</td></tr>
-                  <tr><td class="label">Tunggakan Yuran</td><td class="value" style="color:#ef4444; font-weight:700;">RM ${item.colM}</td></tr>
+                  <tr><td class="label">No. Ahli</td><td class="value">${item.noAhli}</td></tr>
+                  <tr><td class="label">Nama Ahli</td><td class="value" style="text-transform:uppercase; font-weight:700; color:#0f172a;">${item.namaAhli}</td></tr>
+                  <tr><td class="label">Jawatan Semasa</td><td class="value">${item.jawatanSemasa}</td></tr>
+                  <tr><td class="label">Bangsa</td><td class="value">${item.bangsa}</td></tr>
+                  <tr><td class="label">Jantina</td><td class="value">${item.jantina}</td></tr>
+                  <tr><td class="label">Alamat</td><td class="value">${item.alamat}</td></tr>
+                  <tr><td class="label">Status Keahlian</td><td class="value"><span style="background:#dcfce7; color:#166534; padding:2px 8px; border-radius:6px; font-size:0.8rem;">${item.statusKeahlian}</span></td></tr>
+                  <tr><td class="label">Alamat Pejabat</td><td class="value">${item.alamatPejabat}</td></tr>
+                  <tr><td class="label">Umur Semasa</td><td class="value">${item.umurSemasa}</td></tr>
+                  <tr><td class="label">Opsyen Pencen</td><td class="value">${item.opsyenPencen}</td></tr>
+                  <tr><td class="label">Baki Khidmat</td><td class="value">${item.bakiKhidmat}</td></tr>
+                  <tr><td class="label">Yuran Perlu Bayar</td><td class="value" style="color:#ef4444; font-weight:700;">RM ${item.yuranPerluBayar}</td></tr>
                 </table>
               </div>`;
             });
