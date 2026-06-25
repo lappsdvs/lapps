@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lapps-static-v1';
+const CACHE_NAME = 'lapps-v2';
 const STATIC_FILES = [
   '/',
   '/lapps/',
@@ -33,18 +33,29 @@ self.addEventListener('fetch', event => {
   if (requestUrl.origin !== self.location.origin) return;
   if (event.request.method !== 'GET') return;
 
+  const isNavigation = event.request.mode === 'navigate';
+  const isHtmlShell = requestUrl.pathname === '/lapps/' || requestUrl.pathname === '/lapps/index.html';
   const isStaticFile = STATIC_FILES.includes(requestUrl.pathname);
 
-  if (isStaticFile) {
+  if (isNavigation || isHtmlShell) {
     event.respondWith(
-      caches.match(event.request).then(cached => cached || fetch(event.request))
+      fetch(event.request)
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => {
+          return caches.match(event.request)
+            .then(cached => cached || caches.match('/lapps/offline.html'));
+        })
     );
     return;
   }
 
-  if (event.request.mode === 'navigate') {
+  if (isStaticFile) {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match('/lapps/offline.html'))
+      caches.match(event.request).then(cached => cached || fetch(event.request))
     );
   }
 });
