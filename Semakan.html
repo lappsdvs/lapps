@@ -137,7 +137,16 @@
     td { padding: 12px 5px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; vertical-align: top; }
     .label { font-weight: 600; color: #64748b; width: 40%; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
     .value { color: var(--primary); font-weight: 500; }
-    .count-anim { transition: opacity 0.2s ease; }
+    .count-anim {
+      display: inline-block;
+      font-size: 1.15em;
+      font-weight: 700;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    .count-anim.is-counting {
+      opacity: 0.88;
+      transform: translateY(-1px) scale(1.04);
+    }
 
     .warn-msg { 
       background: #fee2e2; 
@@ -274,8 +283,9 @@
         }
 
         const decimals = finalValue.includes('.') ? finalValue.split('.')[1].length : 0;
-        const duration = 800;
+        const duration = 1800;
         const startTime = performance.now();
+        el.classList.add('is-counting');
 
         function update(now) {
           const progress = Math.min((now - startTime) / duration, 1);
@@ -286,6 +296,7 @@
             requestAnimationFrame(update);
           } else {
             el.textContent = finalValue;
+            el.classList.remove('is-counting');
           }
         }
 
