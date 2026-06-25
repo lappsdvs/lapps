@@ -80,19 +80,19 @@ function healthCheckDataSemakan() {
   const ssId = "1xTOCPcSXsrmWqM1zACkDxazh1Ki3ZVjDjBEodt9MSRo";
   const sheetName = "DataSemakan";
   const expectedHeaders = [
-    "No Ahli",
-    "Nama Ahli",
-    "MyKad",
-    "Jawatan Semasa",
-    "Bangsa",
-    "Jantina",
-    "Alamat",
-    "Status Keahlian",
-    "Alamat Pejabat",
-    "Umur Semasa",
-    "Opsyen Pencen",
-    "Baki Khidmat",
-    "Yuran Perlu Bayar"
+    "NO AHLI",
+    "NAMA AHLI",
+    "MYKAD AHLI",
+    "JAWATAN SEMASA",
+    "BANGSA",
+    "JANTINA",
+    "ALAMAT",
+    "STATUS KEAHLIAN",
+    "ALAMAT PEJABAT",
+    "UMUR SEMASA",
+    "OPSYEN PENCEN PADA UMUR",
+    "BAKI PERKHIDMATAN",
+    "AHLI PERLU BAYAR"
   ];
   const formulaErrors = ["#REF!", "#N/A", "#VALUE!", "#ERROR!", "#DIV/0!"];
   const importantColumns = [
@@ -128,6 +128,23 @@ function healthCheckDataSemakan() {
     return String(value || "").replace(/-/g, "").trim();
   }
 
+  function normalizeHeader(value) {
+    return String(value || "").replace(/\s+/g, " ").trim().toUpperCase();
+  }
+
+  function logSummary() {
+    const summary = {
+      ok: report.ok,
+      checkedAt: report.checkedAt,
+      spreadsheetName: report.spreadsheetName,
+      sheetName: report.sheetName,
+      totalRows: report.totalRows,
+      totalIssues: report.totalIssues,
+      first20Issues: report.issues.slice(0, 20)
+    };
+    Logger.log(JSON.stringify(summary, null, 2));
+  }
+
   try {
     const ss = SpreadsheetApp.openById(ssId);
     report.spreadsheetName = ss.getName();
@@ -137,7 +154,7 @@ function healthCheckDataSemakan() {
       addIssue("missing_sheet", "critical", null, null, "Tab DataSemakan tidak dijumpai.");
       report.ok = false;
       report.totalIssues = report.issues.length;
-      Logger.log(JSON.stringify(report, null, 2));
+      logSummary();
       return report;
     }
 
@@ -158,8 +175,14 @@ function healthCheckDataSemakan() {
 
       expectedHeaders.forEach((expected, index) => {
         const actual = String(headers[index] || "").trim();
+        const normalizedActual = normalizeHeader(actual);
+        const normalizedExpected = normalizeHeader(expected);
         const column = String.fromCharCode(65 + index);
-        if (actual !== expected) {
+        const headerMatches = index === 12
+          ? normalizedActual.indexOf(normalizedExpected) !== -1
+          : normalizedActual === normalizedExpected;
+
+        if (!headerMatches) {
           addIssue(
             "header_mismatch",
             "warning",
@@ -191,17 +214,22 @@ function healthCheckDataSemakan() {
         }
       });
 
-      importantColumns.forEach(field => {
-        if (isBlank(row[field.index])) {
-          addIssue(
-            "blank_important_field",
-            "warning",
-            rowNumber,
-            field.column,
-            field.name + " kosong."
-          );
-        }
-      });
+      const statusKeahlian = normalizeHeader(row[7]);
+      const isActiveMember = statusKeahlian.indexOf("AHLI AKTIF") !== -1;
+
+      if (isActiveMember) {
+        importantColumns.forEach(field => {
+          if (isBlank(row[field.index])) {
+            addIssue(
+              "blank_important_field",
+              "warning",
+              rowNumber,
+              field.column,
+              field.name + " kosong untuk row AHLI AKTIF."
+            );
+          }
+        });
+      }
 
       const mykad = normalizeMyKad(row[2]);
       if (mykad !== "") {
@@ -215,7 +243,7 @@ function healthCheckDataSemakan() {
           );
         }
 
-        if (seenMyKad[mykad]) {
+        if (/^\d{12}$/.test(mykad) && seenMyKad[mykad]) {
           addIssue(
             "duplicate_mykad",
             "critical",
@@ -223,7 +251,7 @@ function healthCheckDataSemakan() {
             "C",
             "MyKad duplicate dengan row " + seenMyKad[mykad] + "."
           );
-        } else {
+        } else if (/^\d{12}$/.test(mykad)) {
           seenMyKad[mykad] = rowNumber;
         }
       }
@@ -234,6 +262,6 @@ function healthCheckDataSemakan() {
 
   report.totalIssues = report.issues.length;
   report.ok = report.issues.filter(issue => issue.severity === "critical").length === 0;
-  Logger.log(JSON.stringify(report, null, 2));
+  logSummary();
   return report;
 }
