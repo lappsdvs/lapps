@@ -231,6 +231,8 @@
           <tr>
             <td>${escapeHtml(issue.row || '')}</td>
             <td>${escapeHtml(issue.column || '')}</td>
+            <td>${escapeHtml(issue.noAhli || '')}</td>
+            <td>${escapeHtml(issue.memberName || '')}</td>
             <td>${escapeHtml(issue.type || '')}</td>
             <td class="${severity}">${severity}</td>
             <td>${escapeHtml(issue.message || '')}</td>
@@ -250,12 +252,14 @@
             <tr>
               <th>Row</th>
               <th>Column</th>
+              <th>No Ahli</th>
+              <th>Nama Ahli</th>
               <th>Type</th>
               <th>Severity</th>
               <th>Message</th>
             </tr>
           </thead>
-          <tbody>${rows || '<tr><td colspan="5">No issues in first 20 results.</td></tr>'}</tbody>
+          <tbody>${rows || '<tr><td colspan="7">No issues in first 20 results.</td></tr>'}</tbody>
         </table>`;
     }
   </script>

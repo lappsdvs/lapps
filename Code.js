@@ -134,10 +134,14 @@ function healthCheckDataSemakan() {
     issues: []
   };
 
-  function addIssue(type, severity, row, column, message) {
+  function addIssue(type, severity, row, column, message, details) {
     const issue = { type: type, severity: severity, message: message };
     if (row !== null && row !== undefined) issue.row = row;
     if (column) issue.column = column;
+    if (details) {
+      if (details.noAhli !== undefined) issue.noAhli = details.noAhli;
+      if (details.memberName !== undefined) issue.memberName = details.memberName;
+    }
     report.issues.push(issue);
   }
 
@@ -241,12 +245,18 @@ function healthCheckDataSemakan() {
       if (isActiveMember) {
         importantColumns.forEach(field => {
           if (isBlank(row[field.index])) {
+            const details = field.index === 2 ? {
+              noAhli: row[0],
+              memberName: row[1]
+            } : null;
+
             addIssue(
               "blank_important_field",
               "warning",
               rowNumber,
               field.column,
-              field.name + " kosong untuk row AHLI AKTIF."
+              field.name + " kosong untuk row AHLI AKTIF.",
+              details
             );
           }
         });
