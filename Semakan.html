@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Barlow:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #0f172a;
+      --accent: #1a8c7a;
+      --warning: #e67e22;
+      --bg: #f8fafc;
+      --text: #334155;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body { 
+      font-family: 'Inter', 'Barlow', sans-serif; 
+      background-color: var(--bg); 
+      color: var(--text); 
+      display: flex; 
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* Card Utama */
+    .card { 
+      background: white; 
+      padding: 40px 30px; 
+      border-radius: 24px; 
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); 
+      width: 100%; 
+      max-width: 600px; 
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.8);
+    }
+
+    h2 { color: var(--primary); margin-bottom: 20px; font-weight: 700; font-size: 1.5rem; }
+
+    /* Tips Box */
+    .tips { 
+      font-size: 0.9rem; 
+      color: #475569; 
+      text-align: left; 
+      background: #fff8f1; 
+      padding: 15px; 
+      border-radius: 12px; 
+      border-left: 5px solid var(--warning); 
+      margin-bottom: 25px; 
+      line-height: 1.5;
+    }
+
+    /* Input Style */
+    .input-group { position: relative; margin-bottom: 20px; }
+    
+    input { 
+      width: 100%; 
+      padding: 16px 20px; 
+      border: 2px solid #e2e8f0; 
+      border-radius: 14px; 
+      font-size: 1.1rem; 
+      font-family: inherit;
+      transition: all 0.3s;
+      background: #fdfdfd;
+    }
+
+    input:focus { 
+      outline: none; 
+      border-color: var(--accent); 
+      background: white;
+      box-shadow: 0 0 0 4px rgba(26, 140, 122, 0.1);
+    }
+
+    /* Button Style */
+    .btn { 
+      background: var(--primary); 
+      color: white; 
+      border: none; 
+      padding: 16px; 
+      border-radius: 14px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      width: 100%; 
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s;
+    }
+
+    .btn:hover { 
+      background: #1e293b;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+    }
+
+    .btn:active { transform: translateY(0); }
+
+    /* Loader Animation */
+    .loader { 
+      display: none; 
+      margin: 20px 0; 
+      font-weight: 600; 
+      color: var(--accent); 
+    }
+    
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--accent);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* Result Item Card */
+    .result-item { 
+      margin-top: 25px; 
+      text-align: left; 
+      padding: 25px; 
+      border-radius: 18px; 
+      background: #ffffff; 
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    table { width: 100%; border-collapse: collapse; }
+    td { padding: 12px 5px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; vertical-align: top; }
+    .label { font-weight: 600; color: #64748b; width: 40%; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
+    .value { color: var(--primary); font-weight: 500; }
+
+    .warn-msg { 
+      background: #fee2e2; 
+      border-left: 5px solid #ef4444; 
+      color: #991b1b; 
+      padding: 15px; 
+      border-radius: 12px; 
+      margin-top: 20px; 
+      font-weight: 600; 
+      text-align: left; 
+    }
+
+    .back-link { 
+      color: #64748b; 
+      font-weight: 600; 
+      text-decoration: none; 
+      display: inline-block; 
+      margin-top: 25px;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--accent); }
+
+    @media (max-width: 480px) {
+      .card { padding: 30px 20px; border-radius: 0; position: absolute; top:0; left:0; right:0; min-height: 100vh; }
+      .label { width: 45%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Semakan Ahli</h2>
+    
+    <div class="tips">
+      <strong>💡 Cara Carian:</strong><br>
+      • Masukkan <b>No. MyKad</b> (12 digit tanpa -)<br>
+      • Contoh: 880101105566
+    </div>
+
+    <div class="input-group">
+      <input type="text" id="mykadInput" placeholder="Masukkan No. MyKad" autocomplete="off" inputmode="numeric">
+    </div>
+
+    <button class="btn" onclick="check()">Cari Sekarang</button>
+
+    <div id="loader" class="loader">
+      <div class="spinner"></div>
+      Menyemak Pangkalan Data...
+    </div>
+
+    <div id="res"></div>
+
+    <a href="<?= ScriptApp.getService().getUrl(); ?>?page=index" class="back-link">← Kembali ke Halaman Utama</a>
+  </div>
+
+  <script>
+    // Membolehkan tekan Enter untuk carian
+    document.getElementById("mykadInput").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") { check(); }
+    });
+
+    function check() {
+      const mykad = document.getElementById('mykadInput').value;
+      const resDiv = document.getElementById('res');
+      const loader = document.getElementById('loader');
+
+      if (mykad.trim().length < 6) {
+        resDiv.innerHTML = `<div class="warn-msg">⚠️ Sila masukkan No. MyKad yang sah (12 digit).</div>`;
+        return;
+      }
+
+      loader.style.display = "block";
+      resDiv.innerHTML = "";
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          loader.style.display = "none";
+          if (response.error) {
+            resDiv.innerHTML = `<div class="warn-msg">⚠️ Ralat: ${response.error}</div>`;
+          } else if (response.found) {
+            let html = `<p style="text-align:left; font-weight:bold; margin: 20px 0 10px 5px; color:var(--accent);">✓ REKOD DITEMUI</p>`;
+            response.data.forEach(item => {
+              html += `
+              <div class="result-item">
+                <table>
+                  <tr><td class="label">No. Ahli</td><td class="value">${item.colA}</td></tr>
+                  <tr><td class="label">Nama Penuh</td><td class="value" style="text-transform:uppercase; font-weight:700; color:#0f172a;">${item.colB}</td></tr>
+                  <tr><td class="label">MyKad</td><td class="value">${item.colC}</td></tr>
+                  <tr><td class="label">Jawatan</td><td class="value">${item.colD}</td></tr>
+                  <tr><td class="label">Status</td><td class="value"><span style="background:#dcfce7; color:#166534; padding:2px 8px; border-radius:6px; font-size:0.8rem;">${item.colH}</span></td></tr>
+                  <tr><td class="label">Baki Khidmat</td><td class="value">${item.colL}</td></tr>
+                  <tr><td class="label">Tunggakan Yuran</td><td class="value" style="color:#ef4444; font-weight:700;">RM ${item.colM}</td></tr>
+                </table>
+              </div>`;
+            });
+            resDiv.innerHTML = html;
+          } else {
+            resDiv.innerHTML = `
+              <div style="margin-top:30px; padding:20px; text-align:center;">
+                <div style="font-size:3rem;">🔎</div>
+                <h3 style="color:#ef4444">Rekod Tidak Dijumpai</h3>
+                <p style="font-size:0.85rem; color:#64748b; margin-top:5px;">Sila pastikan No. MyKad yang dimasukkan adalah tepat.</p>
+              </div>`;
+          }
+        })
+        .withFailureHandler(function(err) {
+          loader.style.display = "none";
+          resDiv.innerHTML = `<div class="warn-msg">⚠️ Sistem Ralat: ${err.message}</div>`;
+        })
+        .searchMember(mykad);
+    }
+  </script>
+</body>
+</html>
