@@ -10,7 +10,16 @@ const STATIC_FILES = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(STATIC_FILES))
+      .then(cache => Promise.all(
+        STATIC_FILES.map(url => {
+          return fetch(url)
+            .then(response => {
+              if (response.ok) return cache.put(url, response);
+              return null;
+            })
+            .catch(() => null);
+        })
+      ))
       .then(() => self.skipWaiting())
   );
 });
