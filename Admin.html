@@ -188,6 +188,71 @@
       border-radius: 10px;
       margin-top: 12px;
     }
+      /* Carta pencalonan */
+    .nomination-chart {
+      margin: 20px 0;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #f8fafc;
+    }
+    .nomination-chart figcaption {
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+    .chart-note {
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-bottom: 18px;
+    }
+    .chart-row {
+      display: grid;
+      grid-template-columns: minmax(0, 45%) minmax(0, 1fr) 42px;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .chart-row:last-child { border-bottom: 0; }
+    .chart-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+    .chart-tie {
+      display: inline-block;
+      margin-left: 6px;
+      color: #92400e;
+      background: #fef3c7;
+      border-radius: 5px;
+      padding: 1px 5px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+    .chart-track {
+      height: 22px;
+      background: #e2e8f0;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .chart-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 5px;
+    }
+    .chart-count {
+      text-align: right;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--primary);
+      font-variant-numeric: tabular-nums;
+    }
+    @media (max-width: 600px) {
+      .nomination-chart { padding: 12px; }
+      .chart-row { grid-template-columns: minmax(0, 1fr) 42px; gap: 7px 10px; }
+      .chart-name { grid-column: 1 / -1; }
+    }
   </style>
 </head>
 <body>
@@ -372,6 +437,7 @@
           escapeHtml(group.totalCandidates) + ' calon · ' +
           escapeHtml(group.totalNominations) + ' pencalonan · ' +
           escapeHtml(group.emptySlots) + ' ruangan kosong</p>' +
+          renderNominationChart(group) +
           '<div class="nomination-table"><table>' +
           '<thead><tr><th>Kedudukan</th><th>Nama calon</th>' +
           '<th>Jumlah pencalonan</th><th>Catatan</th></tr></thead>' +
@@ -454,6 +520,40 @@
       };
 
       return api;
+    }
+      function renderNominationChart(group) {
+      const candidates = Array.isArray(group.candidates) ? group.candidates : [];
+      if (!candidates.length) {
+        return '<p class="nomination-meta">Belum ada data untuk carta.</p>';
+      }
+
+      const getCount = function(candidate) {
+        const value = Number(candidate.count);
+        return Number.isFinite(value) && value > 0 ? value : 0;
+      };
+      const maximum = Math.max(1, ...candidates.map(getCount));
+
+      const bars = candidates.map(function(candidate) {
+        const count = getCount(candidate);
+        const width = Math.min(100, count / maximum * 100).toFixed(2);
+
+        return '<div class="chart-row">' +
+          '<div class="chart-name">' + escapeHtml(candidate.name) +
+          (candidate.tied ? '<span class="chart-tie">SERI</span>' : '') +
+          '</div>' +
+          '<div class="chart-track" aria-hidden="true">' +
+          '<div class="chart-fill" style="width:' + width + '%"></div></div>' +
+          '<div class="chart-count"><span aria-label="' +
+          escapeHtml(count + ' pencalonan') + '">' + escapeHtml(count) +
+          '</span></div></div>';
+      }).join('');
+
+      return '<figure class="nomination-chart">' +
+        '<figcaption>Carta Jumlah Pencalonan</figcaption>' +
+        '<p class="chart-note">Skala bermula dari 0 hingga ' +
+        escapeHtml(maximum) + ' pencalonan untuk jawatan ini. ' +
+        'Panjang bar menunjukkan jumlah pencalonan, bukan peratus undi.</p>' +
+        bars + '</figure>';
     }
   </script>
 </body>
