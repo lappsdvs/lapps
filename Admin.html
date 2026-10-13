@@ -192,8 +192,8 @@
 </head>
 <body>
   <main>
-    <h1>Admin Health Check</h1>
-    <p class="hint">Diagnostic admin sahaja. Masukkan PIN untuk semak kesihatan sheet DataSemakan.</p>
+    <h1>Dashboard Admin LAPPS DVS</h1>
+    <p class="hint">Masukkan PIN admin untuk melihat analisis pencalonan atau menyemak data keahlian.</p>
 
     <div class="form-row">
       <input type="password" id="pinInput" placeholder="Admin PIN" autocomplete="current-password">
@@ -208,7 +208,7 @@
     <div id="nominationResult" aria-live="polite"></div>
     <div id="result"></div>
 
-    <a href="<?= ScriptApp.getService().getUrl(); ?>?page=index" class="back-link">← Kembali ke Halaman Utama</a>
+    <a href="./index.html" class="back-link">← Kembali ke Halaman Utama</a>
   </main>
 
   <script>
@@ -233,7 +233,7 @@
       runBtn.disabled = true;
       resultDiv.innerHTML = '<p class="hint">Running health check...</p>';
 
-      google.script.run
+      adminApi()
         .withSuccessHandler(function(report) {
           runBtn.disabled = false;
           renderReport(report);
@@ -313,7 +313,7 @@
       pinInput.disabled = true;
       target.innerHTML = '<p class="hint">Sedang membaca dan mengira pencalonan...</p>';
 
-      google.script.run
+      adminApi()
         .withSuccessHandler(function(report) {
           button.disabled = false;
           pinInput.disabled = false;
@@ -387,6 +387,73 @@
         ' (waktu Malaysia)</p>' +
         '<p class="nomination-notice">' + escapeHtml(report.note) + '</p>' +
         duplicateNotice + cards;
+    }
+      function adminApi() {
+      let successHandler = function() {};
+      let failureHandler = function() {};
+
+      async function send(action, pin) {
+        const controller = new AbortController();
+        const timeout = setTimeout(function() {
+          controller.abort();
+        }, 30000);
+
+        let report;
+        try {
+          const response = await fetch(
+            'https://script.google.com/macros/s/AKfycbwF-x9eezUErBoAL73rqp8k9tMgdISMXwk0wBOGtRfiG15jhAUiNbyJ6Kd8jyoUQgzpHw/exec',
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+              body: JSON.stringify({ action: action, pin: pin }),
+              credentials: 'omit',
+              redirect: 'follow',
+              signal: controller.signal
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error('Backend memberikan HTTP ' + response.status + '.');
+          }
+
+          const text = await response.text();
+          try {
+            report = JSON.parse(text);
+          } catch (error) {
+            throw new Error('Backend tidak memberikan JSON. Semak deployment web app.');
+          }
+        } catch (error) {
+          clearTimeout(timeout);
+          failureHandler({
+            message: error.name === 'AbortError'
+              ? 'Permintaan melebihi 30 saat. Cuba semula.'
+              : error.message
+          });
+          return;
+        }
+
+        clearTimeout(timeout);
+        successHandler(report);
+      }
+
+      const api = {
+        withSuccessHandler: function(handler) {
+          successHandler = handler;
+          return api;
+        },
+        withFailureHandler: function(handler) {
+          failureHandler = handler;
+          return api;
+        },
+        runAdminHealthCheck: function(pin) {
+          return send('healthCheck', pin);
+        },
+        runAdminNominationAnalysis: function(pin) {
+          return send('nominationAnalysis', pin);
+        }
+      };
+
+      return api;
     }
   </script>
 </body>

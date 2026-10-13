@@ -416,3 +416,39 @@ function runAdminNominationAnalysis(pin) {
     return { ok: false, error: 'Analisis gagal: ' + error.message };
   }
 }
+
+function doPost(e) {
+  let result;
+
+  try {
+    const body = e && e.postData ? e.postData.contents : '';
+    if (!body || body.length > 4096) {
+      throw new Error('Permintaan tidak sah.');
+    }
+
+    const payload = JSON.parse(body);
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+      throw new Error('Format permintaan tidak sah.');
+    }
+
+    if (typeof payload.pin !== 'string' || payload.pin.length > 256) {
+      throw new Error('PIN diperlukan dalam format yang sah.');
+    }
+
+    switch (payload.action) {
+      case 'nominationAnalysis':
+        result = runAdminNominationAnalysis(payload.pin);
+        break;
+      case 'healthCheck':
+        result = runAdminHealthCheck(payload.pin);
+        break;
+      default:
+        result = { ok: false, error: 'Tindakan tidak disokong.' };
+    }
+  } catch (error) {
+    result = { ok: false, error: 'Permintaan gagal diproses.' };
+  }
+
+  return ContentService.createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
