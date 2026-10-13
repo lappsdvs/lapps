@@ -1,169 +1,191 @@
-# LAPPS KPMVDGBKSM
+# LAPPS DVS / KPMVDGBKSM
 
-Gerbang Digital Ahli Veterinar LAPPS / KPMVDGBKSM untuk paparan portal, pendaftaran, dan semakan status ahli menggunakan No. MyKad.
+Portal ahli LAPPS DVS untuk pendaftaran, semakan keahlian, pengumuman AGM,
+analisis pencalonan dan pengurusan barisan AJK.
 
-Projek ini menggunakan dua lapisan:
+Dikemas kini: 14 Oktober 2026, waktu Malaysia.
 
-- **GitHub Pages** sebagai landing page dan PWA shell.
-- **Google Apps Script (GAS)** sebagai backend semakan ahli yang membaca Google Spreadsheet.
+## Seni bina dan URL
 
-Public URL GitHub Pages:
-
-```text
-https://lappsdvs.github.io/lapps/
-```
-
-Official URLs:
-
-- GitHub Pages: https://lappsdvs.github.io/lapps/
-- GAS Semakan URL: https://script.google.com/macros/s/AKfycbwF-x9eezUErBoAL73rqp8k9tMgdISMXwk0wBOGtRfiG15jhAUiNbyJ6Kd8jyoUQgzpHw/exec?page=semakan
-- GAS Admin Health URL: https://script.google.com/macros/s/AKfycbwF-x9eezUErBoAL73rqp8k9tMgdISMXwk0wBOGtRfiG15jhAUiNbyJ6Kd8jyoUQgzpHw/exec?page=admin
-- Spreadsheet URL: https://docs.google.com/spreadsheets/d/1xTOCPcSXsrmWqM1zACkDxazh1Ki3ZVjDjBEodt9MSRo/edit
-
-## Project Overview
-
-Fungsi utama:
-
-- Papar landing page LAPPS di GitHub Pages.
-- Sediakan button **Pendaftaran Baru** ke Google Apps Script deployment sedia ada.
-- Sediakan button **Semakan Status** ke Google Apps Script semakan page.
-- Cari rekod ahli berdasarkan input MyKad.
-- Papar keputusan ahli tanpa memaparkan MyKad pada public result page.
-- Papar keputusan ahli tanpa memaparkan alamat rumah / residential address.
-- `Alamat Pejabat` kekal dipaparkan.
-- Papar numeric fields dengan subtle count-up animation / number animation.
-- Sokong basic PWA installable experience.
-
-## Completed Features
-
-- README.md created.
-- SPREADSHEETS.md created.
-- Spreadsheet dependency documented.
-- Semakan link fixed for GitHub Pages.
-- MyKad hidden from public result page.
-- Residential/home address hidden from public result page.
-- `Alamat Pejabat` remains displayed.
-- Member result mapping updated menggunakan named fields seperti `noAhli`, `namaAhli`, `jawatanSemasa`.
-- Number animation on result untuk numeric fields.
-- Number animation improved: duration `1800ms`, bigger animated numbers, dan yuran animation lebih jelas.
-- GAS semakan URL updated to latest deployment.
-- Basic PWA installable setup.
-- PWA app icons `192x192` dan `512x512`.
-- Offline fallback page.
-- PWA service worker cache updated to `lapps-v2`.
-- PWA uses network-first for navigation dan `index.html` untuk kurangkan isu old cache.
-- Spreadsheet health check function: `healthCheckDataSemakan()`.
-- Admin Health Page completed.
-- Admin PIN protection completed menggunakan Script Properties key `ADMIN_PIN`.
-
-## File Structure
-
-```text
-LAPPSDVS/
-├── Code.js                  # Backend Google Apps Script
-├── index.html               # GitHub Pages landing page / PWA shell
-├── Semakan.html             # Google Apps Script semakan page
-├── manifest.webmanifest     # PWA manifest
-├── service-worker.js        # PWA service worker untuk static files sahaja
-├── offline.html             # Offline fallback page
-├── icons/
-│   ├── icon.svg             # Source icon
-│   ├── icon-192.png         # PWA icon 192x192
-│   └── icon-512.png         # PWA icon 512x512
-├── README.md
-├── SPREADSHEETS.md
-└── TODO.md
-```
-
-## Main Functions
-
-| Function / Fail | Tujuan |
+| Bahagian | Platform / URL |
 |---|---|
-| `doGet(e)` dalam `Code.js` | Route Google Apps Script page: `index` atau `semakan`. |
-| `testAuth()` dalam `Code.js` | Test akses Apps Script kepada spreadsheet. |
-| `searchMember(inputMyKad)` dalam `Code.js` | Cari ahli berdasarkan MyKad dan return named fields ke frontend. |
-| `healthCheckDataSemakan()` dalam `Code.js` | Admin/manual diagnostic untuk semak kesihatan `DataSemakan`. |
-| `runAdminHealthCheck(pin)` dalam `Code.js` | PIN-protected wrapper yang baca `ADMIN_PIN` dan jalankan health check jika authorized. |
-| `check()` dalam `Semakan.html` | Panggil `google.script.run.searchMember(mykad)` dan render result. |
-| `animateNumbers()` dalam `Semakan.html` | Count-up animation untuk numeric result values. |
+| Laman utama dan PWA | https://lappsdvs.github.io/lapps/ |
+| Dashboard admin | https://lappsdvs.github.io/lapps/Admin.html |
+| Semakan ahli | https://script.google.com/macros/s/AKfycbwF-x9eezUErBoAL73rqp8k9tMgdISMXwk0wBOGtRfiG15jhAUiNbyJ6Kd8jyoUQgzpHw/exec?page=semakan |
+| Backend | https://script.google.com/macros/s/AKfycbwF-x9eezUErBoAL73rqp8k9tMgdISMXwk0wBOGtRfiG15jhAUiNbyJ6Kd8jyoUQgzpHw/exec |
+| Borang pencalonan | https://forms.gle/Na4HHtyBs7KYPJUq8 |
+| Repository | https://github.com/lappsdvs/lapps |
 
-## Admin Health Page
+GitHub Pages menyediakan paparan utama dan admin.
+Apps Script membaca spreadsheet, menyemak PIN dan menyimpan rekod AJK.
+Semakan ahli masih menggunakan halaman GAS dan `google.script.run`.
+Admin GitHub Pages menggunakan POST JSON dengan Content-Type
+`text/plain;charset=UTF-8`, kemudian membaca respons JSON backend.
 
-Admin Health Page:
+`/exec?page=admin` masih tersedia sebagai route GAS.
+Pintu masuk utama admin ialah GitHub Pages, melalui ADMIN ACCESS di footer.
+Link kembali Admin dan Semakan menggunakan URL penuh laman utama GitHub Pages.
 
-```text
-https://script.google.com/macros/s/AKfycbwF-x9eezUErBoAL73rqp8k9tMgdISMXwk0wBOGtRfiG15jhAUiNbyJ6Kd8jyoUQgzpHw/exec?page=admin
-```
+## Status live dan titik sambung
 
-Security:
+| Perkara | Status |
+|---|---|
+| Deployment backend | Versi 28 |
+| Commit modul AJK | `6b4eb6c` |
+| Commit carta | `abf5966` |
+| Commit pembetulan link kembali | `e74dcb9` |
+| Carta GitHub Pages | Pengguna mengesahkan carta sudah muncul |
+| Analisis pencalonan | Ranking dan kiraan berjaya dipaparkan |
+| PIN salah untuk analisis | Pengguna mengesahkan data tidak keluar sebelum migrasi admin ke GitHub Pages |
+| Muatkan sesi AJK 2026/2028 | Berjaya; screenshot menunjukkan borang dan status belum disimpan |
+| Simpan draf dan muat semula | Perlu pengesahan hasil ujian live yang jelas |
+| Terbitkan dan paparan awam | Belum disahkan melalui ujian live |
+| Status Git selepas commit AJK | Push berjaya; semakan akhir `git status -sb` masih perlu dibuat |
 
-- PIN protected menggunakan Script Properties key `ADMIN_PIN`.
-- Frontend memanggil `google.script.run.runAdminHealthCheck(pin)`.
-- `runAdminHealthCheck(pin)` hanya menjalankan `healthCheckDataSemakan()` jika PIN betul.
+Langkah sambung: uji simpan draf kosong sesi 2026/2028, muat semula,
+dan sahkan rekod boleh dibaca. Jangan terbitkan data ujian sebagai barisan rasmi.
 
-Paparan:
+## Fungsi sedia ada
 
-- Health check summary.
-- First 20 issues.
-- Table columns: row, column, noAhli, memberName, type, severity, message.
-- Tidak memaparkan nilai MyKad.
-- Tidak memaparkan residential/home address.
+- Pendaftaran baharu melalui deployment GAS berasingan.
+- Semakan ahli berdasarkan MyKad; MyKad dan alamat rumah tidak dihantar
+  dalam hasil semakan awam. Alamat pejabat masih dipaparkan.
+- Animasi nombor hasil semakan, termasuk yuran.
+- PWA, ikon dan offline fallback.
+- Pengumuman AGM, banner `assets/agm_2026.png` dan butang borang pencalonan.
+- Health check DataSemakan melalui PIN admin.
+- Analisis pencalonan dengan ranking, tanda SERI, jumlah responses,
+  masa kemas kini, ruangan kosong dan semakan nama MJK berulang.
+- Carta bar mendatar bagi setiap kumpulan jawatan.
+- Borang Urus AJK dengan pilihan nama calon atau input manual.
+- Simpan draf, pratonton, pengesahan dan penerbitan barisan AJK.
+- Paparan kad barisan AJK diterbitkan pada laman utama.
 
-## PWA Notes
+AGM: 27 Oktober 2026, Institut Penyelidikan Veterinar, Ipoh.
+Hari terakhir pencalonan: 14 Oktober 2026.
+Borang dijadualkan tutup pada 15 Oktober 2026, 00:00 GMT+8.
 
-PWA setup berada di GitHub Pages layer sahaja.
+## Kaedah analisis pencalonan
 
-- `manifest.webmanifest` menjadikan app installable.
-- `icons/icon-192.png` dan `icons/icon-512.png` digunakan sebagai app icons.
-- `service-worker.js` cache static GitHub Pages files sahaja.
-- Cache version semasa: `lapps-v2`.
-- Navigation dan `/lapps/index.html` guna network-first strategy supaya user lebih cepat dapat versi latest.
-- `offline.html` dipaparkan sebagai fallback jika user offline.
-- Semakan ahli kekal online-only kerana ia bergantung kepada `google.script.run`, Google Apps Script, dan Google Spreadsheet.
+- Ranking berasingan: YDP, NYDP, SU, Naib SU dan Bendahari.
+- MJK 1 hingga MJK 6 digabungkan menjadi satu ranking.
+- Kolum NAMA PENUH ialah pencadang dan tidak dikira sebagai pencalonan.
+- Nama digabungkan hanya apabila beza huruf besar/kecil atau ruang.
+  Ejaan, singkatan atau organisasi berlainan masih boleh menghasilkan
+  rekod calon berasingan; perlu semakan urusetia.
+- Nama MJK berulang dalam response sama masih dikira bagi setiap ruangan.
+  Baris berkaitan ditandakan; kaedah pembetulan belum dimuktamadkan.
+- Jumlah sama mendapat kedudukan sama dan tanda SERI.
+  Susunan abjad tidak menentukan pemenang atau pemutus seri.
+- Carta memaparkan semua calon; skala setiap jawatan bermula pada sifar
+  hingga jumlah pencalonan tertinggi dalam jawatan itu.
+- Ranking pencalonan bukan keputusan undi dan bukan shortlist rasmi.
 
-Service worker tidak cache Google Apps Script semakan page atau result data.
+Cadangan YDP: lima calon bagi YDP, NYDP, SU dan Bendahari;
+20 calon daripada ranking gabungan MJK. Ahli kemudian memilih enam
+orang MJK berlainan. Kaedah shortlist Naib SU, seri dan penggantian
+calon yang menang jawatan utama perlu disahkan urusetia.
 
-## Google Apps Script Deployment Steps
+Undi AGM bermula dari kosong; jumlah pencalonan tidak ditambah kepada undi AGM.
+Sistem pengundian dan pengiraan semua keputusan calon belum dibina.
 
-1. Buka Google Apps Script project.
-2. Pastikan fail berikut disalin ke Apps Script:
-   - `Code.js`
-   - `index.html`
-   - `Semakan.html`
-3. Deploy sebagai **Web app**.
-4. Pastikan account owner Apps Script ada access kepada spreadsheet.
-5. Test URL semakan:
+## Urus AJK Sesi Baharu
 
-```text
-https://script.google.com/macros/s/AKfycbwF-x9eezUErBoAL73rqp8k9tMgdISMXwk0wBOGtRfiG15jhAUiNbyJ6Kd8jyoUQgzpHw/exec?page=semakan
-```
+1. Masukkan PIN dan buka Urus AJK Sesi Baharu.
+2. Masukkan sesi, contohnya 2026/2028, dan klik Muatkan Sesi.
+3. Isi YDP, NYDP, SU, Naib SU, Bendahari serta enam ahli MJK.
+4. Semak nama dan organisasi dalam pratonton.
+5. Simpan Draf untuk rekod yang belum hendak dipaparkan.
+6. Selepas keputusan rasmi disahkan, tandakan pengesahan dan Terbitkan.
 
-6. Jalankan `healthCheckDataSemakan()` secara manual dari Apps Script editor untuk semak spreadsheet.
+Draf boleh tidak lengkap. Penerbitan memerlukan 11 nama dan organisasi,
+tanpa nama berulang berdasarkan normalisasi ruang dan huruf besar/kecil.
+Jumlah undi sah adalah input manual dan pilihan; gambar serta profil juga pilihan.
+Foto menggunakan URL HTTPS, bukan muat naik fail.
+Organisasi daripada cadangan nama mungkin singkatan; admin perlu menyemaknya.
 
-## Spreadsheet Dependency
+Setiap simpan menambah snapshot versi baharu dalam AJKSesi.
+Versi rekod disemak dan Script Lock digunakan untuk mengelakkan
+penulisan bertindih. Jika permintaan tamat masa, muatkan semula sesi
+untuk semak status sebelum mencuba simpan lagi.
 
-Kod semakan menggunakan spreadsheet:
+Draf baharu tidak menggantikan snapshot diterbitkan.
+Paparan awam membaca snapshot DITERBITKAN terakhir yang ditambah,
+bukan memilih sesi mengikut tahun.
+UI pemilihan arkib dan fungsi nyahterbit belum dibina.
 
-```text
-1xTOCPcSXsrmWqM1zACkDxazh1Ki3ZVjDjBEodt9MSRo
-```
+## Fail utama
 
-Sheet utama:
+| Fail | Tujuan |
+|---|---|
+| `Code.js` | Route GAS, semakan ahli, health check, ranking dan dispatcher POST |
+| `Ajk.js` | Validasi, akses PIN, snapshot AJK dan bacaan awam |
+| `Admin.html` | Admin GitHub Pages, carta dan borang AJK |
+| `index.html` | Portal, AGM, ADMIN ACCESS dan kad AJK diterbitkan |
+| `Semakan.html` | Semakan ahli melalui GAS |
+| `appsscript.json` | Manifest Apps Script |
+| `.clasp.json` | Sasaran projek Apps Script |
+| `.claspignore` | Pengecualian fail untuk clasp |
+| `manifest.webmanifest` | Manifest PWA |
+| `service-worker.js` | Cache dan offline fallback |
+| `offline.html` | Paparan offline |
+| `assets/agm_2026.png` | Banner AGM |
+| `icons/` | Ikon PWA |
+| `SPREADSHEETS.md` | Mapping dan struktur data |
+| `TODO.md` | Kerja seterusnya serta QA |
 
-```text
-DataSemakan
-```
+## Endpoint backend
 
-Rujuk [SPREADSHEETS.md](./SPREADSHEETS.md) untuk mapping column dan nota IMPORTRANGE.
+| Kaedah / action | Tujuan | Akses |
+|---|---|---|
+| POST `healthCheck` | Diagnostik DataSemakan | PIN |
+| POST `nominationAnalysis` | Ranking pencalonan | PIN |
+| POST `getAjk` | Rekod sesi dan cadangan calon | PIN |
+| POST `saveAjkDraft` | Simpan snapshot draf | PIN |
+| POST `publishAjk` | Simpan snapshot diterbitkan | PIN dan pengesahan |
+| GET `publishedAjk` | Nama, jawatan, organisasi, foto dan profil diterbitkan | Awam |
 
-## Security Notes
+PIN disimpan dalam Script Properties `ADMIN_PIN`, bukan dalam Git.
+PIN dihantar dalam badan POST, bukan URL.
+Pengesahan akaun Google tidak digunakan untuk akses admin.
+Sesiapa yang mengetahui PIN boleh menggunakan fungsi admin.
+Respons AJK awam tidak mengandungi jumlah undi atau rekod draf.
 
-- MyKad digunakan untuk search input dan matching sahaja.
-- MyKad tidak dipaparkan dalam public result page.
-- Alamat rumah / residential address tidak dihantar ke frontend dan tidak dipaparkan.
-- `Alamat Pejabat` masih dipaparkan kerana diperlukan untuk rujukan kerja.
-- Jangan cache Google Apps Script semakan result.
-- Jangan jadikan Google Spreadsheet public.
-- Hadkan edit access spreadsheet kepada admin yang sah.
-- Pertimbangkan privacy notice dan masking policy untuk sensitive fields.
-- Semakan ahli perlu kekal online-only supaya data tidak tersimpan dalam PWA cache.
+## Deployment dan penyelenggaraan
+
+Workspace: `C:\Users\burnk\OneDrive\Documents-assets\LAPPSDVS`.
+
+Jalankan satu command pada satu masa:
+
+1. Semak syntax JS, script HTML dan `git diff --check`.
+2. `clasp show-authorized-user` jika ada masalah akses.
+3. `clasp status`; pastikan fail backend yang betul disenaraikan.
+4. `clasp push`.
+5. `clasp version "Penerangan perubahan"`; gunakan versi yang benar-benar keluar.
+6. Kemas kini deployment sedia ada dengan versi tersebut.
+7. Stage fail khusus, commit dan push GitHub.
+8. Uji laman live serta semak `git status -sb`.
+
+Deployment ID:
+`AKfycbwF-x9eezUErBoAL73rqp8k9tMgdISMXwk0wBOGtRfiG15jhAUiNbyJ6Kd8jyoUQgzpHw`
+
+Akaun clasp yang berjaya digunakan: `lapps.dvs@gmail.com`.
+Push GitHub menggunakan `git -c credential.username=lappsdvs push origin main`.
+Login clasp dan GitHub ialah dua sistem berasingan.
+
+Perubahan frontend GitHub Pages sahaja tidak memerlukan versi backend baharu.
+Jika fail yang sama turut perlu dikemas kini pada route GAS, push dan deploy GAS.
+Dokumentasi sahaja tidak memerlukan deployment backend.
+
+Jika paparan lama muncul, cuba Ctrl+F5 atau query versi commit pada URL admin.
+Semak deployment Pages dan service worker jika masalah berterusan.
+
+## PWA dan nota data
+
+Konfigurasi terdahulu mendokumenkan cache `lapps-v2` dan network-first
+untuk navigation/index. Cache itu belum diaudit semula dalam sesi ini.
+Semakan, analisis dan borang AJK memerlukan sambungan internet.
+Jangan cache respons admin, PIN, MyKad atau keputusan semakan.
+Semak privacy notice, perkongsian spreadsheet dan akses editor mengikut TODO.
+
+Rujuk SPREADSHEETS.md untuk kedua-dua spreadsheet dan struktur AJKSesi.

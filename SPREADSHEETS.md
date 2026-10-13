@@ -1,12 +1,12 @@
 # Dokumentasi Spreadsheet LAPPS
 
-Dokumen ini menerangkan spreadsheet dependency untuk sistem semakan ahli LAPPS.
+Dokumen ini menerangkan data semakan ahli, pencalonan dan snapshot barisan AJK LAPPS.
 
 Official URLs:
 
 - GitHub Pages: https://lappsdvs.github.io/lapps/
 - GAS Semakan URL: https://script.google.com/macros/s/AKfycbwF-x9eezUErBoAL73rqp8k9tMgdISMXwk0wBOGtRfiG15jhAUiNbyJ6Kd8jyoUQgzpHw/exec?page=semakan
-- GAS Admin Health URL: https://script.google.com/macros/s/AKfycbwF-x9eezUErBoAL73rqp8k9tMgdISMXwk0wBOGtRfiG15jhAUiNbyJ6Kd8jyoUQgzpHw/exec?page=admin
+- GAS Admin Health URL: https://lappsdvs.github.io/lapps/Admin.html
 - Spreadsheet URL: https://docs.google.com/spreadsheets/d/1xTOCPcSXsrmWqM1zACkDxazh1Ki3ZVjDjBEodt9MSRo/edit
 
 ## Spreadsheet ID
@@ -124,3 +124,94 @@ Jika struktur spreadsheet berubah:
 2. Update expected headers dalam `healthCheckDataSemakan()`.
 3. Update dokumen ini.
 4. Jalankan `healthCheckDataSemakan()` dari Apps Script editor.
+
+## Pencalonan dan AJKSesi (14 Oktober 2026)
+
+Spreadsheet pencalonan dan rekod AJK:
+https://docs.google.com/spreadsheets/d/1r25kF1RzY8CFnBpo2H4OEFq5ai6f0zZm4q61R0woIA4/edit
+
+Spreadsheet keahlian dan mapping DataSemakan di atas kekal berasingan.
+Borang sumber: https://forms.gle/Na4HHtyBs7KYPJUq8
+
+### Form Responses 1
+
+| Kolum | Header / kegunaan |
+|---|---|
+| A | Timestamp; menentukan baris response yang dikira |
+| B | Email Address pencadang |
+| C | NAMA PENUH pencadang; bukan pencalonan |
+| D | JAWATAN pencadang |
+| E | ORGANISASI pencadang |
+| F | YANG DIPERTUA |
+| G | NAIB YANG DIPERTUA |
+| H | SETIAUSAHA |
+| I | NAIB SETIAUSAHA |
+| J | BENDAHARI |
+| K-P | 1. hingga 6. MAJLIS JAWATANKUASA KERJA |
+
+Backend mencari header berdasarkan nama, dengan normalisasi ruang dan case.
+K-P digabungkan dalam satu ranking MJK; F-J dikira berasingan.
+Kolum A-E tidak menyumbang pencalonan.
+
+Nama calon hanya digabungkan jika sama selepas normalisasi ruang dan case.
+Metadata/organisasi atau ejaan berlainan perlu semakan manusia.
+Nama berulang dalam response MJK masih dikira setiap kali dan barisnya ditandakan.
+Jumlah yang sama menerima kedudukan sama. Shortlist tidak dipilih automatik.
+
+Form Responses 1 dibaca sahaja oleh modul analisis/AJK.
+Kod modul ini tidak mengubah respons pencalonan.
+
+### AJKSesi
+
+Tab dicipta automatik pada simpan pertama.
+Setiap simpan menambah satu baris snapshot; tidak menggantikan sejarah sebelumnya.
+
+| Kolum | Header | Kandungan |
+|---|---|---|
+| A | sesi | Contoh 2026/2028 |
+| B | versi | Nombor versi meningkat bagi sesi yang sama |
+| C | status | DRAF atau DITERBITKAN |
+| D | dikemas_kini | ISO timestamp |
+| E | data_json | Array 11 rekod pemegang jawatan |
+
+Setiap objek dalam data_json:
+
+| Field | Kandungan |
+|---|---|
+| role | YDP, NYDP, SU, NSU, BENDAHARI, MJK1 hingga MJK6 |
+| nama | Nama pemegang jawatan |
+| organisasi | Organisasi; diperlukan untuk penerbitan |
+| undi | Integer >= 0 atau null; input manual pilihan |
+| foto | URL HTTPS atau string kosong |
+| profil | Profil ringkas atau string kosong |
+
+Sesi mesti mempunyai tempoh dua tahun.
+Draf boleh tidak lengkap; penerbitan memerlukan semua 11 nama dan organisasi.
+Nama berulang ditolak berdasarkan normalisasi ruang/case.
+Gambar dan profil tidak diwajibkan.
+Semua fungsi helper dalaman Ajk.js berakhir dengan underscore.
+
+Admin membaca snapshot terkini bagi sesi yang dipilih.
+Simpan menggunakan expectedVersion dan Script Lock.
+Jika rekod telah berubah, simpan ditolak dan admin perlu muat semula.
+Header AJKSesi mesti sepadan; kod tidak menulis pada tab berstruktur lain.
+
+GET action=publishedAjk membaca snapshot DITERBITKAN terakhir yang ditambah.
+Draf tidak dihantar melalui endpoint itu; undi juga tidak dimasukkan.
+Draf yang disimpan selepas penerbitan tidak menggantikan barisan awam.
+Pemilihan arkib dan nyahterbit belum tersedia.
+
+Had payload POST: 32768 aksara.
+Had data_json yang disimpan oleh modul: 20000 aksara.
+Jangan edit JSON atau header secara manual ketika admin sedang menyimpan.
+
+### Status ujian dan akses
+
+- Backend live versi 28; muat sesi AJK berjaya pada GitHub Pages.
+- Simpan draf/readback dan penerbitan awam masih memerlukan QA live jelas.
+- Ujian backend dengan mocks lulus untuk PIN, draf, konflik versi,
+  nama berulang, kelengkapan dan pemisahan data awam.
+- PIN berada dalam Script Properties ADMIN_PIN; jangan tulis nilainya dalam dokumentasi.
+- POST admin memerlukan PIN. GET publishedAjk menyediakan data yang diterbitkan sahaja.
+- Jangan jadikan keseluruhan spreadsheet awam untuk membolehkan paparan AJK.
+- Angka pencalonan ialah data semasa, bukan keputusan undi AGM.

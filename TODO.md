@@ -1,87 +1,107 @@
 # TODO LAPPSDVS / lapps
 
-Checklist ini fokus kepada kerja praktikal untuk projek Google Apps Script Web App LAPPS. Item bertanda selesai ialah kerja dokumentasi dan fix yang sudah dibuat dalam repo tempatan.
+Dikemas kini: 14 Oktober 2026, waktu Malaysia.
+Backend live: versi 28. Commit fungsi AJK: `6b4eb6c`.
 
-## PWA Roadmap
+## Titik sambung terdekat
 
-- [x] Create `manifest.webmanifest`.
-- [x] Create `service-worker.js`.
-- [x] Add PWA icons `192x192` dan `512x512`.
-- [x] Register service worker dalam halaman utama.
-- [x] Add offline fallback page untuk paparan apabila tiada internet.
-- [x] Basic PWA setup done.
-- [x] PWA cache update behavior done (`lapps-v2`, network-first navigation/index.html).
-- [ ] Test PWA install on Android Chrome.
-- [ ] Test PWA install on desktop Chrome / Edge.
-- [x] Semak cache strategy supaya data ahli tidak disimpan secara tidak sengaja di browser.
+- [x] Carta pencalonan muncul di GitHub Pages.
+- [x] Backend dan borang Urus AJK dideploy.
+- [x] Muatkan sesi 2026/2028 berjaya pada laman live.
+- [ ] Sahkan mesej simpan draf kosong berjaya.
+- [ ] Muat semula sesi dan sahkan status DRAF serta versi rekod.
+- [ ] Sahkan tab AJKSesi dan snapshot disimpan dengan betul.
+- [ ] Sahkan draf tidak muncul pada laman utama.
+- [ ] Uji PIN salah untuk endpoint AJK pada GitHub Pages.
+- [ ] Uji rekod berubah / expectedVersion yang sudah lama.
+- [ ] Semak status Git akhir selepas push modul AJK.
 
-## Security / Privacy
+Ujian backend dengan mocks lulus untuk PIN salah, draf kekal private,
+konflik versi, kelengkapan penerbitan, nama berulang dan pengasingan
+data undi daripada respons awam. Ini tidak menggantikan QA live.
 
-- [x] MyKad hidden from public result page.
-- [x] Privacy display fix done: MyKad dan alamat rumah disembunyikan.
-- [x] Admin PIN protection done.
-- [ ] Add privacy notice pada halaman semakan.
-- [ ] Add masking policy untuk sensitive fields seperti MyKad, alamat, yuran, dan status keahlian.
-- [ ] Semak semula field yang dihantar dari `Code.js` ke frontend supaya hanya data perlu sahaja dihantar.
-- [ ] Tetapkan polisi access Google Apps Script deployment, contohnya public link atau organization-only.
-- [ ] Pastikan Google Spreadsheet tidak dikongsi sebagai public.
-- [ ] Audit siapa yang ada edit access kepada Google Spreadsheet.
+## QA penerbitan AJK
 
-## Spreadsheet Reliability
+- [ ] Uji penerbitan tidak lengkap ditolak.
+- [ ] Uji nama berulang ditolak.
+- [ ] Uji penerbitan tanpa pengesahan ditolak.
+- [ ] Uji penerbitan dan paparan kad dalam persekitaran/data ujian berasingan.
+- [ ] Uji draf baharu tidak mengubah barisan yang sudah diterbitkan.
+- [ ] Uji gambar rosak menggunakan fallback inisial.
+- [ ] Uji nama panjang dan paparan telefon.
+- [ ] Semak hasil organisasi autofill; singkatan mungkin perlu dikembangkan.
+- [ ] Uji privasi respons awam: tiada draf atau jumlah undi.
+- [ ] Tambah pemilihan arkib sesi jika diperlukan.
+- [ ] Tambah nyahterbit jika diperlukan.
 
-- [x] Spreadsheet dependency documented.
-- [x] Member result mapping updated.
-- [x] Add spreadsheet health check function `healthCheckDataSemakan()`.
-- [x] Add spreadsheet health check untuk detect `#REF!`.
-- [x] Add spreadsheet health check untuk blank headers.
-- [ ] Add spreadsheet health check untuk broken `IMPORTRANGE`.
-- [ ] Add validation bahawa sheet `DataSemakan` wujud sebelum search.
-- [ ] Add validation bahawa required columns masih cukup dari A sampai M.
-- [ ] Simpan column mapping dalam satu config supaya senang update jika struktur spreadsheet berubah.
-- [ ] Test search dengan MyKad tanpa dash dan dengan dash.
-- [ ] Test search apabila data MyKad ada spacing atau format text/number bercampur.
+Jangan terbitkan barisan rekaan sebagai AJK rasmi pada laman live.
 
-## Google Apps Script Deployment
+## Pencalonan dan AGM
 
-- [x] Semakan link fixed for GitHub Pages.
-- [x] GAS semakan URL updated to latest deployment.
-- [ ] Add deployment checklist untuk GitHub + GAS.
-- [ ] Setup clasp for GAS sync.
-- [ ] Pastikan URL GitHub Pages untuk halaman utama berfungsi.
-- [ ] Pastikan URL GAS `/exec?page=semakan` berfungsi.
-- [ ] Pastikan `Code.js`, `index.html`, dan `Semakan.html` versi local sudah disalin ke Apps Script.
-- [ ] Test authorization `SpreadsheetApp.openById()` selepas deploy.
-- [ ] Rekod deployment URL semasa dalam README atau deployment notes.
-- [ ] Semak sama ada back link dalam `Semakan.html` perlu guna URL penuh jika halaman dibuka luar GAS.
+- [x] Pengumuman, banner AGM dan link borang responden.
+- [x] Deadline laman selaras dengan borang: 15 Oktober 2026, 00:00 GMT+8.
+- [x] Ranking setiap jawatan dan gabungan MJK 1-6.
+- [x] Pencadang NAMA PENUH tidak masuk kiraan.
+- [x] Normalisasi huruf besar/kecil dan ruang.
+- [x] Tanda SERI dan baris MJK berulang.
+- [x] Carta bar mendatar dengan semua calon.
+- [ ] Semak nama calon yang berbeza ejaan/metadata.
+- [ ] Sahkan kaedah nama berulang dalam satu response MJK.
+- [ ] Sahkan kelayakan dan persetujuan calon.
+- [ ] Sahkan kaedah pemutus seri pada tempat kelima dan ke-20.
+- [ ] Sahkan kaedah shortlist Naib Setiausaha.
+- [ ] Sahkan aturan penggantian MJK jika menang jawatan utama.
+- [ ] Muktamadkan shortlist selepas pencalonan ditutup.
+- [ ] Bina paparan calon untuk bentangan AGM.
+- [ ] Kad profil/gambar calon dengan format seragam.
+- [ ] Tab jawatan, kad ringkasan dan mode penuh skrin jika diperlukan.
 
-## UI / UX Improvements
+Snapshot semakan 13 Oktober menunjukkan nama MJK berulang pada baris 19.
+Baca semula data semasa sebelum membuat keputusan; nombor baris boleh berubah.
 
-- [x] Improved number animation done: `1800ms`, larger animated numbers, yuran animation visible.
-- [ ] Add loading state yang jelas semasa carian sedang berjalan.
-- [ ] Add message ringkas jika input MyKad bukan 12 digit.
-- [ ] Add mobile test untuk table result supaya label dan value mudah dibaca.
-- [ ] Pertimbangkan susunan field result mengikut kepentingan pengguna.
-- [ ] Semak text Bahasa Malaysia supaya konsisten antara halaman utama dan semakan.
-- [ ] Tambah fallback jika external image gagal load.
+## Pengundian dan keputusan
 
-## Admin / Maintenance Tools
+- [ ] Tetapkan pengesahan ahli, satu rekod undi setiap ahli dan tempoh undi.
+- [ ] Sahkan pilihan seorang bagi setiap jawatan utama.
+- [ ] Tetapkan pilihan enam calon MJK berlainan daripada shortlist.
+- [ ] Bina sistem undi atau modul key in keputusan semua calon.
+- [ ] Kira jumlah undi sah setiap calon, berasingan daripada pencalonan.
+- [ ] Tentukan pengendalian undi rosak/tidak lengkap dan seri.
+- [ ] Paparan keputusan selepas disahkan urusetia.
 
-- [x] Add admin-only diagnostic function.
-- [x] Admin Health Page.
-- [ ] Add function untuk test spreadsheet access dan return status yang mudah dibaca admin.
-- [ ] Add function untuk kira jumlah row data dalam `DataSemakan`.
-- [ ] Add function untuk check duplicate MyKad.
-- [ ] Add function untuk list missing required fields.
-- [ ] Add simple maintenance log untuk catat tarikh deployment dan perubahan penting.
-- [ ] Admin page export/download report CSV.
+Modul AJKSesi menyimpan barisan pemegang jawatan secara manual.
+Ia belum menjalankan pengundian atau menentukan pemenang secara automatik.
 
-## Documentation
+## Semakan ahli dan spreadsheet
 
-- [x] README.md created.
-- [x] SPREADSHEETS.md created.
-- [x] Spreadsheet dependency documented.
-- [ ] Add screenshot atau ringkas visual flow untuk user journey.
-- [ ] Add deployment checklist untuk GitHub + GAS.
-- [ ] Document semua external URLs dan tujuan setiap URL.
-- [ ] Document polisi data: data apa dipaparkan, data apa disimpan, dan siapa boleh akses.
-- [ ] Update `SPREADSHEETS.md` setiap kali column spreadsheet berubah.
+- [x] Mapping named fields dan semakan kewujudan DataSemakan.
+- [x] Health check header, formula errors, MyKad kosong/berulang/tidak sah.
+- [x] Summary row dan 20 isu pertama.
+- [ ] Selesaikan isu DataSemakan yang dikenal pasti urusetia.
+- [ ] Audit sumber dan permission IMPORTRANGE.
+- [ ] Validasi kecukupan kolum A-M sebelum carian.
+- [ ] Satukan mapping dalam config jika diperlukan.
+- [ ] Uji MyKad dengan/tanpa dash dan format text/number bercampur.
+
+## PWA, privasi dan penyelenggaraan
+
+- [x] Manifest, ikon, service worker dan offline fallback.
+- [x] MyKad dan alamat rumah tidak dipaparkan dalam hasil semakan awam.
+- [x] Akses endpoint admin melalui PIN.
+- [x] clasp sync dan deployment ID sedia ada digunakan.
+- [x] Link kembali Admin/Semakan menuju laman utama GitHub Pages.
+- [ ] Uji install PWA Android Chrome dan desktop Chrome/Edge.
+- [ ] Audit cache Admin.html dan data sensitif.
+- [ ] Privacy notice dan semakan field semakan yang dihantar ke frontend.
+- [ ] Audit perkongsian spreadsheet serta editor yang dibenarkan.
+- [ ] Semak loading, validasi MyKad dan result table pada telefon.
+- [ ] Eksport laporan admin CSV jika diperlukan.
+- [ ] Semak fungsi diagnostik yang boleh dipanggil terus dari GAS client.
+
+## Dokumentasi
+
+- [x] README menerangkan seni bina, endpoint dan status live.
+- [x] SPREADSHEETS menerangkan pencalonan serta AJKSesi.
+- [x] TODO membezakan fungsi siap daripada QA live yang pending.
+- [ ] Kemas kini status selepas setiap ujian/deployment.
+- [ ] Tambah screenshot panduan jika diperlukan.
