@@ -1,4 +1,8 @@
 function doGet(e) {
+  if (e && e.parameter && e.parameter.action === 'publishedAjk') {
+    return ContentService.createTextOutput(JSON.stringify(getPublishedAjk_()))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
   var page = e.parameter.page;
   if (!page || page == 'index') {
     return HtmlService.createTemplateFromFile('index').evaluate()
@@ -422,7 +426,7 @@ function doPost(e) {
 
   try {
     const body = e && e.postData ? e.postData.contents : '';
-    if (!body || body.length > 4096) {
+    if (!body || body.length > 32768) {
       throw new Error('Permintaan tidak sah.');
     }
 
@@ -436,6 +440,11 @@ function doPost(e) {
     }
 
     switch (payload.action) {
+      case 'getAjk':
+      case 'saveAjkDraft':
+      case 'publishAjk':
+        result = runAdminAjk(payload.action, payload.pin, payload);
+        break;
       case 'nominationAnalysis':
         result = runAdminNominationAnalysis(payload.pin);
         break;

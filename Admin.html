@@ -253,6 +253,49 @@
       .chart-row { grid-template-columns: minmax(0, 1fr) 42px; gap: 7px 10px; }
       .chart-name { grid-column: 1 / -1; }
     }
+      .ajk-panel {
+      margin: 20px 0;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #f8fafc;
+    }
+    .ajk-panel[hidden] { display: none; }
+    .ajk-panel h2 { color: var(--primary); margin-bottom: 8px; }
+    .ajk-toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; }
+    .ajk-toolbar label { flex: 1; min-width: 180px; }
+    .ajk-panel label { display: block; font-weight: 600; font-size: 0.9rem; }
+    .ajk-panel input, .ajk-panel textarea {
+      margin-top: 5px;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+    .ajk-panel textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      min-height: 80px;
+      resize: vertical;
+    }
+    .ajk-member {
+      margin: 16px 0;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: white;
+    }
+    .ajk-member legend { color: var(--primary); font-weight: 700; padding: 0 6px; }
+    .ajk-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .ajk-wide { grid-column: 1 / -1; }
+    .ajk-confirm { margin-top: 16px; }
+    .ajk-confirm input { width: auto; margin-right: 8px; }
+    .ajk-publish { background: var(--accent); }
+    .ajk-success { background: #dcfce7; color: #166534; }
+    @media (max-width: 600px) {
+      .ajk-fields { grid-template-columns: 1fr; }
+      .ajk-panel { padding: 12px; }
+    }
   </style>
 </head>
 <body>
@@ -270,6 +313,44 @@
         Analisis Pencalonan
       </button>
     </div>
+        <div class="nomination-actions">
+      <button id="ajkOpenBtn" type="button" onclick="toggleAjkPanel()">
+        Urus AJK Sesi Baharu
+      </button>
+    </div>
+    <section id="ajkPanel" class="ajk-panel" hidden>
+      <h2>Urus AJK Sesi Baharu</h2>
+      <p class="nomination-meta">Isi barisan yang disahkan urusetia selepas AGM.
+        Draf tidak dipaparkan kepada ahli.</p>
+      <div class="ajk-toolbar">
+        <label>Sesi
+          <input id="ajkSession" value="2026/2028" maxlength="9">
+        </label>
+        <button id="ajkLoadBtn" type="button" onclick="loadAjkSession()">
+          Muatkan Sesi
+        </button>
+      </div>
+      <div id="ajkMessage" aria-live="polite"></div>
+      <div id="ajkEditor" hidden>
+        <p id="ajkStatus" class="nomination-meta"></p>
+        <div id="ajkMembers"></div>
+        <h3>Pratonton Barisan AJK</h3>
+        <div id="ajkPreview" class="nomination-table"></div>
+        <label class="ajk-confirm">
+          <input id="ajkConfirmed" type="checkbox">
+          Saya mengesahkan nama dan jawatan ini berdasarkan keputusan rasmi AGM.
+        </label>
+        <div class="ajk-toolbar">
+          <button id="ajkSaveBtn" type="button" onclick="saveAjkSession(false)">
+            Simpan Draf
+          </button>
+          <button id="ajkPublishBtn" class="ajk-publish" type="button"
+                  onclick="saveAjkSession(true)">
+            Terbitkan Barisan AJK
+          </button>
+        </div>
+      </div>
+    </section>
     <div id="nominationResult" aria-live="polite"></div>
     <div id="result"></div>
 
@@ -555,6 +636,264 @@
         'Panjang bar menunjukkan jumlah pencalonan, bukan peratus undi.</p>' +
         bars + '</figure>';
     }
+      let ajkState = null;
+    let ajkSuggestions = {};
+    let ajkWorking = false;
+
+    const ajkLabels = {
+      YDP: 'Yang Dipertua', NYDP: 'Naib Yang Dipertua',
+      SU: 'Setiausaha', NSU: 'Naib Setiausaha', BENDAHARI: 'Bendahari',
+      MJK1: 'Ahli MJK 1', MJK2: 'Ahli MJK 2', MJK3: 'Ahli MJK 3',
+      MJK4: 'Ahli MJK 4', MJK5: 'Ahli MJK 5', MJK6: 'Ahli MJK 6'
+    };
+
+    function toggleAjkPanel() {
+      const panel = document.getElementById('ajkPanel');
+      panel.hidden = !panel.hidden;
+    }
+
+    function ajkMessage(text, success) {
+      const target = document.getElementById('ajkMessage');
+      target.className = 'message' + (success ? ' ajk-success' : '');
+      target.textContent = text;
+    }
+
+    function ajkBusy(busy) {
+      ajkWorking = busy;
+      document.querySelectorAll(
+        '#ajkPanel input, #ajkPanel textarea, #ajkPanel button, ' +
+        '#pinInput, #runBtn, #nominationBtn, #ajkOpenBtn'
+      ).forEach(function(element) { element.disabled = busy; });
+    }
+
+    async function ajkRequest(action, extra) {
+      const pin = document.getElementById('pinInput').value;
+      if (!pin) throw new Error('Masukkan PIN admin dahulu.');
+
+      const controller = new AbortController();
+      const timeout = setTimeout(function() { controller.abort(); }, 30000);
+      try {
+        const response = await fetch(
+          'https://script.google.com/macros/s/AKfycbwF-x9eezUErBoAL73rqp8k9tMgdISMXwk0wBOGtRfiG15jhAUiNbyJ6Kd8jyoUQgzpHw/exec',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+            body: JSON.stringify(Object.assign({}, extra, { action: action, pin: pin })),
+            credentials: 'omit',
+            redirect: 'follow',
+            signal: controller.signal
+          }
+        );
+        if (!response.ok) throw new Error('Backend memberikan HTTP ' + response.status + '.');
+        const report = await response.json();
+        if (!report || !report.ok) {
+          throw new Error(report && report.error ? report.error : 'Tiada laporan diterima.');
+        }
+        return report;
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          throw new Error('Permintaan tamat masa. Muatkan semula sesi untuk semak rekod sebelum mencuba lagi.');
+        }
+        throw error;
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+
+    async function loadAjkSession() {
+      if (ajkWorking) return;
+      if (ajkState && !confirm('Muatkan semula sesi? Perubahan yang belum disimpan akan digantikan.')) return;
+      const sesi = document.getElementById('ajkSession').value.trim();
+      ajkBusy(true);
+      ajkMessage('Sedang memuatkan sesi...');
+      try {
+        const report = await ajkRequest('getAjk', { sesi: sesi });
+        ajkState = {
+          sesi: report.sesi,
+          version: report.record ? report.record.version : 0,
+          roles: report.roles,
+          published: report.published
+        };
+        renderAjkEditor(report);
+        ajkMessage('Sesi dimuatkan. Pilih calon atau isi nama secara manual.', true);
+      } catch (error) {
+        ajkState = null;
+        document.getElementById('ajkEditor').hidden = true;
+        ajkMessage(error.message);
+      } finally {
+        ajkBusy(false);
+      }
+    }
+
+    function renderAjkEditor(report) {
+      const existing = report.record ? report.record.members : [];
+      const groups = report.candidateGroups || [];
+      ajkSuggestions = {};
+
+      const fields = report.roles.map(function(role, index) {
+        const member = existing.find(function(item) { return item.role === role; }) || {};
+        const group = groups[index < 5 ? index : 5] || {};
+        const options = new Map();
+
+        (group.candidates || []).forEach(function(candidate) {
+          const parts = String(candidate.name).split(/\s+-\s+/);
+          const nama = parts[0].trim();
+          const organisasi = parts.length >= 3 ? parts.slice(2).join(' - ') : '';
+          if (!options.has(nama)) options.set(nama, organisasi);
+        });
+        ajkSuggestions[role] = options;
+
+        const list = Array.from(options.keys()).map(function(nama) {
+          return '<option value="' + escapeHtml(nama) + '"></option>';
+        }).join('');
+
+        return '<fieldset class="ajk-member"><legend>' +
+          escapeHtml(ajkLabels[role] || role) + '</legend><div class="ajk-fields">' +
+          '<label class="ajk-wide">Nama calon' +
+          '<input id="ajk_' + role + '_nama" list="ajkList_' + role +
+          '" maxlength="200" value="' + escapeHtml(member.nama || '') + '">' +
+          '<datalist id="ajkList_' + role + '">' + list + '</datalist></label>' +
+          '<label>Organisasi' +
+          '<input id="ajk_' + role + '_organisasi" maxlength="200" value="' +
+          escapeHtml(member.organisasi || '') + '"></label>' +
+          '<label>Jumlah undi sah (pilihan)' +
+          '<input id="ajk_' + role + '_undi" type="number" min="0" step="1" value="' +
+          escapeHtml(member.undi == null ? '' : member.undi) + '"></label>' +
+          '<label class="ajk-wide">URL gambar HTTPS (pilihan)' +
+          '<input id="ajk_' + role + '_foto" type="url" maxlength="1000" value="' +
+          escapeHtml(member.foto || '') + '"></label>' +
+          '<label class="ajk-wide">Profil ringkas (pilihan)' +
+          '<textarea id="ajk_' + role + '_profil" maxlength="500">' +
+          escapeHtml(member.profil || '') + '</textarea></label>' +
+          '</div></fieldset>';
+      }).join('');
+
+      document.getElementById('ajkMembers').innerHTML = fields;
+
+      report.roles.forEach(function(role) {
+        document.getElementById('ajk_' + role + '_nama')
+          .addEventListener('change', function() {
+            const nama = this.value.trim();
+            const organisation = ajkSuggestions[role].get(nama);
+            if (organisation !== undefined) {
+              document.getElementById('ajk_' + role + '_organisasi').value = organisation;
+            }
+            document.getElementById('ajkConfirmed').checked = false;
+            previewAjk();
+          });
+      });
+
+      document.getElementById('ajkConfirmed').checked = false;
+      document.getElementById('ajkEditor').hidden = false;
+      updateAjkStatus(report.record);
+      previewAjk();
+    }
+
+    function collectAjkMembers() {
+      return ajkState.roles.map(function(role) {
+        function value(field) {
+          return document.getElementById('ajk_' + role + '_' + field).value.trim();
+        }
+        const undi = value('undi');
+        return {
+          role: role, nama: value('nama'), organisasi: value('organisasi'),
+          undi: undi === '' ? null : Number(undi),
+          foto: value('foto'), profil: value('profil')
+        };
+      });
+    }
+
+    function previewAjk() {
+      if (!ajkState) return;
+      const rows = collectAjkMembers().map(function(member) {
+        return '<tr><td>' + escapeHtml(ajkLabels[member.role]) +
+          '</td><td>' + escapeHtml(member.nama || 'Belum diisi') +
+          '</td><td>' + escapeHtml(member.organisasi || '') + '</td></tr>';
+      }).join('');
+      document.getElementById('ajkPreview').innerHTML =
+        '<table><thead><tr><th>Jawatan</th><th>Nama</th><th>Organisasi</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody></table>';
+    }
+
+    function updateAjkStatus(record) {
+      const published = ajkState.published;
+      document.getElementById('ajkStatus').textContent =
+        'Sesi ' + ajkState.sesi + ' | ' +
+        (record ? record.status + ' | Versi ' + record.version : 'Belum disimpan') +
+        (published ? ' | Ada barisan diterbitkan bagi sesi ini.' : ' | Belum diterbitkan.');
+    }
+
+    async function saveAjkSession(publish) {
+      if (ajkWorking) return;
+      if (!ajkState) { ajkMessage('Muatkan sesi dahulu.'); return; }
+      if (document.getElementById('ajkSession').value.trim() !== ajkState.sesi) {
+        ajkMessage('Sesi berubah. Klik Muatkan Sesi dahulu.');
+        return;
+      }
+
+      const members = collectAjkMembers();
+      const seen = new Set();
+      for (const member of members) {
+        if (member.undi !== null &&
+            (!Number.isSafeInteger(member.undi) || member.undi < 0)) {
+          ajkMessage('Semak jumlah undi bagi ' + ajkLabels[member.role] + '.');
+          return;
+        }
+        if (member.nama) {
+          const key = member.nama.replace(/\s+/g, ' ').toUpperCase();
+          if (seen.has(key)) { ajkMessage('Nama berulang: ' + member.nama); return; }
+          seen.add(key);
+        }
+        if (publish && (!member.nama || !member.organisasi)) {
+          ajkMessage('Lengkapkan nama dan organisasi bagi ' + ajkLabels[member.role] + '.');
+          return;
+        }
+      }
+
+      if (publish) {
+        previewAjk();
+        if (!document.getElementById('ajkConfirmed').checked) {
+          ajkMessage('Semak pratonton dan tandakan pengesahan keputusan rasmi dahulu.');
+          return;
+        }
+        if (!confirm('Terbitkan barisan AJK sesi ' + ajkState.sesi + ' untuk paparan ahli?')) return;
+      }
+
+      ajkBusy(true);
+      ajkMessage(publish ? 'Sedang menerbitkan barisan AJK...' : 'Sedang menyimpan draf...');
+      try {
+        const report = await ajkRequest(publish ? 'publishAjk' : 'saveAjkDraft', {
+          sesi: ajkState.sesi,
+          expectedVersion: ajkState.version,
+          members: members,
+          confirmed: publish
+        });
+        ajkState.version = report.record.version;
+        if (publish) ajkState.published = report.record;
+        document.getElementById('ajkConfirmed').checked = false;
+        updateAjkStatus(report.record);
+        ajkMessage(publish ? 'Barisan AJK berjaya diterbitkan.' : 'Draf berjaya disimpan.', true);
+      } catch (error) {
+        ajkMessage(error.message + ' Jika status simpan tidak pasti, muatkan semula sesi dahulu.');
+      } finally {
+        ajkBusy(false);
+      }
+    }
+
+    document.getElementById('ajkMembers').addEventListener('input', function() {
+      document.getElementById('ajkConfirmed').checked = false;
+      previewAjk();
+    });
+
+    document.getElementById('pinInput').addEventListener('input', function() {
+      ajkState = null;
+      ajkSuggestions = {};
+      document.getElementById('ajkEditor').hidden = true;
+      document.getElementById('ajkMembers').innerHTML = '';
+      document.getElementById('ajkPreview').innerHTML = '';
+      document.getElementById('ajkMessage').textContent = '';
+      document.getElementById('ajkConfirmed').checked = false;
+    });
   </script>
 </body>
 </html>
