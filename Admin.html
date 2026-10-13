@@ -165,6 +165,29 @@
       .summary { grid-template-columns: 1fr 1fr; }
       table { display: block; overflow-x: auto; }
     }
+      .nomination-actions { margin: 0 0 20px; }
+    .nomination-actions button { background: var(--accent); }
+    .nomination-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    .nomination-card summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .nomination-meta { color: var(--muted); margin-top: 8px; font-size: 0.85rem; }
+    .nomination-table { overflow-x: auto; }
+    .tie-label { color: var(--warn); font-weight: 700; }
+    .nomination-notice {
+      background: #fffbeb;
+      color: #92400e;
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 12px;
+    }
   </style>
 </head>
 <body>
@@ -177,6 +200,12 @@
       <button id="runBtn" onclick="runHealthCheck()">Run Health Check</button>
     </div>
 
+    <div class="nomination-actions">
+      <button id="nominationBtn" type="button" onclick="runNominationAnalysis()">
+        Analisis Pencalonan
+      </button>
+    </div>
+    <div id="nominationResult" aria-live="polite"></div>
     <div id="result"></div>
 
     <a href="<?= ScriptApp.getService().getUrl(); ?>?page=index" class="back-link">← Kembali ke Halaman Utama</a>
@@ -261,6 +290,103 @@
           </thead>
           <tbody>${rows || '<tr><td colspan="7">No issues in first 20 results.</td></tr>'}</tbody>
         </table>`;
+    }
+      document.getElementById('pinInput').addEventListener('input', function() {
+      document.getElementById('nominationResult').innerHTML = '';
+      document.getElementById('result').innerHTML = '';
+    });
+
+    function runNominationAnalysis() {
+      const pinInput = document.getElementById('pinInput');
+      const pin = pinInput.value;
+      const target = document.getElementById('nominationResult');
+      const button = document.getElementById('nominationBtn');
+
+      target.innerHTML = '';
+      if (!pin) {
+        target.innerHTML = '<div class="message">Masukkan PIN admin dahulu.</div>';
+        pinInput.focus();
+        return;
+      }
+
+      button.disabled = true;
+      pinInput.disabled = true;
+      target.innerHTML = '<p class="hint">Sedang membaca dan mengira pencalonan...</p>';
+
+      google.script.run
+        .withSuccessHandler(function(report) {
+          button.disabled = false;
+          pinInput.disabled = false;
+          renderNominationAnalysis(report);
+        })
+        .withFailureHandler(function(error) {
+          button.disabled = false;
+          pinInput.disabled = false;
+          target.innerHTML = '<div class="message">Sistem ralat: ' +
+            escapeHtml(error.message) + '</div>';
+        })
+        .runAdminNominationAnalysis(pin);
+    }
+
+    function renderNominationAnalysis(report) {
+      const target = document.getElementById('nominationResult');
+      if (!report || !report.ok) {
+        target.innerHTML = '<div class="message">' +
+          escapeHtml(report && report.error ? report.error : 'Tiada laporan diterima.') +
+          '</div>';
+        return;
+      }
+
+      const checkedAt = new Date(report.checkedAt).toLocaleString('en-GB', {
+        timeZone: 'Asia/Kuala_Lumpur',
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      });
+
+      const duplicateRows = report.duplicateMjkRows || [];
+      const duplicateNotice = duplicateRows.length
+        ? '<div class="nomination-notice">Nama MJK berulang dalam response sama pada baris sheet: ' +
+          escapeHtml(duplicateRows.join(', ')) +
+          '. Kiraan masih memasukkan setiap ruangan; semak sebelum keputusan dimuktamadkan.</div>'
+        : '';
+
+      const cards = (report.rankings || []).map(function(group) {
+        const rows = (group.candidates || []).map(function(candidate) {
+          const variants = candidate.spellings || [];
+          const variantNote = variants.length > 1
+            ? '<details class="nomination-meta"><summary>Variasi tulisan asal</summary>' +
+              variants.map(escapeHtml).join('<br>') + '</details>'
+            : '';
+
+          return '<tr>' +
+            '<td>' + escapeHtml(candidate.rank) + '</td>' +
+            '<td>' + escapeHtml(candidate.name) + variantNote + '</td>' +
+            '<td><strong>' + escapeHtml(candidate.count) + '</strong></td>' +
+            '<td>' + (candidate.tied ? '<span class="tie-label">SERI</span>' : '') + '</td>' +
+            '</tr>';
+        }).join('');
+
+        return '<details class="nomination-card" open>' +
+          '<summary>' + escapeHtml(group.role) + '</summary>' +
+          '<p class="nomination-meta">' +
+          escapeHtml(group.totalCandidates) + ' calon · ' +
+          escapeHtml(group.totalNominations) + ' pencalonan · ' +
+          escapeHtml(group.emptySlots) + ' ruangan kosong</p>' +
+          '<div class="nomination-table"><table>' +
+          '<thead><tr><th>Kedudukan</th><th>Nama calon</th>' +
+          '<th>Jumlah pencalonan</th><th>Catatan</th></tr></thead>' +
+          '<tbody>' + (rows || '<tr><td colspan="4">Belum ada pencalonan.</td></tr>') +
+          '</tbody></table></div></details>';
+      }).join('');
+
+      target.innerHTML =
+        '<h2>Analisis Pencalonan Semasa</h2>' +
+        '<p class="nomination-meta">Belum disahkan — bukan keputusan pengundian.</p>' +
+        '<p><strong>Jumlah responses: ' + escapeHtml(report.totalResponses) + '</strong></p>' +
+        '<p class="nomination-meta">Dikemas kini: ' + escapeHtml(checkedAt) +
+        ' (waktu Malaysia)</p>' +
+        '<p class="nomination-notice">' + escapeHtml(report.note) + '</p>' +
+        duplicateNotice + cards;
     }
   </script>
 </body>

@@ -296,3 +296,123 @@ function healthCheckDataSemakan() {
   logSummary();
   return report;
 }
+
+function runAdminNominationAnalysis(pin) {
+  const adminPin = PropertiesService.getScriptProperties().getProperty('ADMIN_PIN');
+  if (!adminPin || String(pin || '') !== adminPin) {
+    return { ok: false, error: 'PIN admin tidak sah atau belum ditetapkan.' };
+  }
+
+  try {
+    const ss = SpreadsheetApp.openById('1r25kF1RzY8CFnBpo2H4OEFq5ai6f0zZm4q61R0woIA4');
+    const sheet = ss.getSheetByName('Form Responses 1');
+    if (!sheet) throw new Error('Tab Form Responses 1 tidak dijumpai.');
+
+    const data = sheet.getDataRange().getDisplayValues();
+    const normalise = value => String(value || '').replace(/\s+/g, ' ').trim().toUpperCase();
+    const headers = (data[0] || []).map(normalise);
+
+    const findColumn = name => {
+      const indexes = headers.reduce((found, value, index) => {
+        if (value === normalise(name)) found.push(index);
+        return found;
+      }, []);
+      if (indexes.length !== 1) throw new Error('Semak kolum: ' + name);
+      return indexes[0];
+    };
+
+    const timestampColumn = findColumn('Timestamp');
+    const roles = [
+      'YANG DIPERTUA', 'NAIB YANG DIPERTUA', 'SETIAUSAHA',
+      'NAIB SETIAUSAHA', 'BENDAHARI'
+    ].map(name => ({ name: name, columns: [findColumn(name)] }));
+
+    roles.push({
+      name: 'MAJLIS JAWATANKUASA KERJA (MJK 1–6)',
+      columns: [1, 2, 3, 4, 5, 6].map(number =>
+        findColumn(number + '. MAJLIS JAWATANKUASA KERJA'))
+    });
+
+    const responses = data.slice(1)
+      .map((row, index) => ({ row: row, sheetRow: index + 2 }))
+      .filter(entry => normalise(entry.row[timestampColumn]) !== '');
+
+    const duplicateMjkRows = [];
+
+    const rankings = roles.map(role => {
+      const candidates = new Map();
+      let totalNominations = 0;
+      let emptySlots = 0;
+
+      responses.forEach(entry => {
+        const seen = new Set();
+        let repeated = false;
+
+        role.columns.forEach(column => {
+          const raw = String(entry.row[column] || '').trim();
+          const key = normalise(raw);
+          if (!key) {
+            emptySlots++;
+            return;
+          }
+
+          if (seen.has(key)) repeated = true;
+          seen.add(key);
+
+          if (!candidates.has(key)) {
+            candidates.set(key, {
+              name: key, count: 0, spellings: new Set()
+            });
+          }
+
+          const candidate = candidates.get(key);
+          candidate.count++;
+          candidate.spellings.add(raw);
+          totalNominations++;
+        });
+
+        if (role.columns.length === 6 && repeated) {
+          duplicateMjkRows.push(entry.sheetRow);
+        }
+      });
+
+      const sorted = Array.from(candidates.values()).sort((a, b) =>
+        b.count - a.count || a.name.localeCompare(b.name));
+
+      let rank = 0;
+      const items = sorted.map((candidate, index) => {
+        if (index === 0 || candidate.count !== sorted[index - 1].count) {
+          rank = index + 1;
+        }
+        return {
+          rank: rank,
+          name: candidate.name,
+          count: candidate.count,
+          tied: (index > 0 && sorted[index - 1].count === candidate.count) ||
+            (index + 1 < sorted.length &&
+             sorted[index + 1].count === candidate.count),
+          spellings: Array.from(candidate.spellings)
+        };
+      });
+
+      return {
+        role: role.name,
+        totalCandidates: items.length,
+        totalNominations: totalNominations,
+        emptySlots: emptySlots,
+        candidates: items
+      };
+    });
+
+    return {
+      ok: true,
+      checkedAt: new Date().toISOString(),
+      totalResponses: responses.length,
+      duplicateMjkRows: duplicateMjkRows,
+      rankings: rankings,
+      note: 'Kiraan semasa berdasarkan semua responses. Nama digabungkan hanya apabila beza huruf besar/kecil atau ruang. Nama MJK berulang dalam response sama masih dikira dan ditandakan untuk semakan. Belum keputusan rasmi atau shortlist.'
+    };
+  } catch (error) {
+    return { ok: false, error: 'Analisis gagal: ' + error.message };
+  }
+}
