@@ -442,12 +442,13 @@ window.LappsOrgChart = (function () {
       '" role="img" aria-label="Carta organisasi LAPPS DVS sesi ' + safe(record.sesi) + '">' +
       '<rect width="1800" height="' + height + '" fill="#fff"/>' +
       '<path d="M0 0H1800V18H0Z" fill="#16796b"/>' +
-      '<rect x="60" y="45" width="140" height="140" rx="70" fill="#e7f2ef"/>' +
-      '<text x="130" y="124" text-anchor="middle" font-family="Arial" font-size="28" font-weight="700" fill="#16796b">LAPPS</text>' +
-      '<image data-chart-photo="logo" href="https://i.ibb.co/SwF9c1Zx/Logo-LAPPS-transparent-3.png" x="60" y="45" width="140" height="140" preserveAspectRatio="xMidYMid meet"/>' +
-      fittedText('KESATUAN PEMBANTU-PEMBANTU MAKMAL VETERINAR DAN GRED2 BERSEKUTU KERAJAAN SEMENANJUNG MALAYSIA', 1000, 73, 1440, 72, 26, '#132c35', true) +
-      '<text x="1000" y="175" text-anchor="middle" font-family="Arial" font-size="38" font-weight="700" fill="#16796b">CARTA ORGANISASI</text>' +
-      '<text x="1000" y="218" text-anchor="middle" font-family="Arial" font-size="26" fill="#50646c">SESI ' + safe(record.sesi) +
+      '<image data-chart-photo="logo" href="https://lappsdvs.github.io/lapps/assets/logo_kementerian.png" x="60" y="38" width="205" height="205" preserveAspectRatio="xMidYMid meet"/>' +
+      '<image data-chart-photo="logo" href="https://lappsdvs.github.io/lapps/assets/logo_dvs.png" x="1535" y="38" width="205" height="205" preserveAspectRatio="xMidYMid meet"/>' +
+      // Logo besar samar di belakang keseluruhan carta; crop dibenarkan.
+      '<image data-chart-photo="logo" href="https://i.ibb.co/SwF9c1Zx/Logo-LAPPS-transparent-3.png" x="-270" y="-160" width="2340" height="' + (height + 320) + '" preserveAspectRatio="xMidYMid slice" opacity="0.055"/>' +
+      fittedText('KESATUAN PEMBANTU-PEMBANTU MAKMAL VETERINAR DAN GRED2 BERSEKUTU KERAJAAN SEMENANJUNG MALAYSIA', 900, 73, 1180, 72, 26, '#132c35', true) +
+      '<text x="900" y="175" text-anchor="middle" font-family="Arial" font-size="38" font-weight="700" fill="#16796b">CARTA ORGANISASI</text>' +
+      '<text x="900" y="218" text-anchor="middle" font-family="Arial" font-size="26" fill="#50646c">SESI ' + safe(record.sesi) +
       (draft ? ' · DRAF / PRATONTON' : '') + '</text>';
     rows.forEach((row, ri) => {
       const y = 290 + ri * 400;
