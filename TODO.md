@@ -1,6 +1,6 @@
 # TODO LAPPSDVS / lapps
 
-Dikemas kini: 14 Oktober 2026, waktu Malaysia.
+Dikemas kini: 15 Oktober 2026, waktu Malaysia.
 Backend live: versi 28. Commit fungsi AJK: `6b4eb6c`.
 
 ## Titik sambung terdekat
@@ -99,6 +99,18 @@ Ia belum menjalankan pengundian atau menentukan pemenang secara automatik.
 - [ ] Semak fungsi diagnostik yang boleh dipanggil terus dari GAS client.
 
 ## Dokumentasi
+
+### Carta organisasi 19 ruangan (disediakan, belum deploy)
+
+- [x] DAERAH1-6 dan AUDIT1-2 pada backend serta borang.
+- [x] Pratonton carta berfoto, organisasi dan sambungan antara bahagian.
+- [x] PNG draf dan PNG rasmi daripada snapshot diterbitkan.
+- [x] Keserasian snapshot 11 AJK; tiada migrasi tab.
+- [x] Validasi nama mengikut kumpulan; PIN, draf private, konflik versi dan undi tidak bocor diuji.
+- [ ] Push clasp dan deploy versi GAS baharu, kemudian kemas kini GitHub Pages.
+- [ ] QA live simpan/muat semula 19 ruangan tanpa menerbitkan data rekaan.
+- [ ] Semak foto sebenar (HTTPS/CORS) dan fallback inisial.
+- [ ] Sahkan carta dan PNG rasmi selepas 19 nama sebenar diterbitkan.
 
 - [x] README menerangkan seni bina, endpoint dan status live.
 - [x] SPREADSHEETS menerangkan pencalonan serta AJKSesi.

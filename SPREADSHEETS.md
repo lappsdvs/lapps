@@ -172,13 +172,13 @@ Setiap simpan menambah satu baris snapshot; tidak menggantikan sejarah sebelumny
 | B | versi | Nombor versi meningkat bagi sesi yang sama |
 | C | status | DRAF atau DITERBITKAN |
 | D | dikemas_kini | ISO timestamp |
-| E | data_json | Array 11 rekod pemegang jawatan |
+| E | data_json | Array 19 rekod pemegang jawatan; snapshot lama boleh mempunyai 11 |
 
 Setiap objek dalam data_json:
 
 | Field | Kandungan |
 |---|---|
-| role | YDP, NYDP, SU, NSU, BENDAHARI, MJK1 hingga MJK6 |
+| role | YDP, NYDP, SU, NSU, BENDAHARI, MJK1-6, DAERAH1-6, AUDIT1-2 |
 | nama | Nama pemegang jawatan |
 | organisasi | Organisasi; diperlukan untuk penerbitan |
 | undi | Integer >= 0 atau null; input manual pilihan |
@@ -186,8 +186,9 @@ Setiap objek dalam data_json:
 | profil | Profil ringkas atau string kosong |
 
 Sesi mesti mempunyai tempoh dua tahun.
-Draf boleh tidak lengkap; penerbitan memerlukan semua 11 nama dan organisasi.
-Nama berulang ditolak berdasarkan normalisasi ruang/case.
+Draf boleh tidak lengkap; penerbitan baharu memerlukan semua 19 nama dan organisasi.
+Nama berulang ditolak berdasarkan normalisasi ruang/case dalam kumpulan sama:
+teras (11), daerah (6) dan audit (2). Nama boleh sama antara kumpulan berlainan.
 Gambar dan profil tidak diwajibkan.
 Semua fungsi helper dalaman Ajk.js berakhir dengan underscore.
 
@@ -204,6 +205,17 @@ Pemilihan arkib dan nyahterbit belum tersedia.
 Had payload POST: 32768 aksara.
 Had data_json yang disimpan oleh modul: 20000 aksara.
 Jangan edit JSON atau header secara manual ketika admin sedang menyimpan.
+
+### Carta organisasi 19 ruangan (15 Oktober 2026, belum deploy)
+
+AJK Daerah dan Juruaudit Dalaman diisi manual berdasarkan pengesahan urusetia.
+Semua menggunakan field sedia ada; tiada penentuan pemenang atau pelantikan automatik.
+Tiada tab atau kolum baharu diperlukan. Snapshot lama tidak diubah.
+Draf payload lama dengan 11 peranan teras diterima dan dilengkapkan dengan lapan ruangan kosong.
+Publish payload 11 ditolak supaya frontend lama tidak menggugurkan peranan tambahan.
+Borang baharu memuat snapshot 11 ke 19 ruangan dan memerlukan kelengkapan sebelum publish.
+Carta rasmi membaca GET publishedAjk; jumlah undi kekal tidak dihantar kepada awam.
+PNG draf dijana daripada input semasa, bukan bukti rekod telah disimpan atau diterbitkan.
 
 ### Status ujian dan akses
 

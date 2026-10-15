@@ -3,7 +3,7 @@
 Portal ahli LAPPS DVS untuk pendaftaran, semakan keahlian, pengumuman AGM,
 analisis pencalonan dan pengurusan barisan AJK.
 
-Dikemas kini: 14 Oktober 2026, waktu Malaysia.
+Dikemas kini: 15 Oktober 2026, waktu Malaysia.
 
 ## Seni bina dan URL
 
@@ -59,7 +59,7 @@ dan sahkan rekod boleh dibaca. Jangan terbitkan data ujian sebagai barisan rasmi
 - Carta bar mendatar bagi setiap kumpulan jawatan.
 - Borang Urus AJK dengan pilihan nama calon atau input manual.
 - Simpan draf, pratonton, pengesahan dan penerbitan barisan AJK.
-- Paparan kad barisan AJK diterbitkan pada laman utama.
+- Paparan carta organisasi AJK diterbitkan pada laman utama serta eksport PNG.
 
 AGM: 27 Oktober 2026, Institut Penyelidikan Veterinar, Ipoh.
 Hari terakhir pencalonan: 14 Oktober 2026.
@@ -81,10 +81,11 @@ Borang dijadualkan tutup pada 15 Oktober 2026, 00:00 GMT+8.
   hingga jumlah pencalonan tertinggi dalam jawatan itu.
 - Ranking pencalonan bukan keputusan undi dan bukan shortlist rasmi.
 
-Cadangan YDP: lima calon bagi YDP, NYDP, SU dan Bendahari;
-20 calon daripada ranking gabungan MJK. Ahli kemudian memilih enam
-orang MJK berlainan. Kaedah shortlist Naib SU, seri dan penggantian
-calon yang menang jawatan utama perlu disahkan urusetia.
+Shortlist dipersetujui pada 15 Oktober 2026: semua calon YDP, enam NYDP teratas,
+gabungan empat SU dan tujuh Naib SU teratas (nama sama disenaraikan sekali),
+empat Bendahari teratas dan 14 MJK teratas. Kertas undian manual menggunakan
+satu pilihan YDP/NYDP/Bendahari, dua pilihan SU & NSU dan enam pilihan MJK.
+Kaedah seri dan penggantian calon perlu pengesahan urusetia.
 
 Undi AGM bermula dari kosong; jumlah pencalonan tidak ditambah kepada undi AGM.
 Sistem pengundian dan pengiraan semua keputusan calon belum dibina.
@@ -93,13 +94,15 @@ Sistem pengundian dan pengiraan semua keputusan calon belum dibina.
 
 1. Masukkan PIN dan buka Urus AJK Sesi Baharu.
 2. Masukkan sesi, contohnya 2026/2028, dan klik Muatkan Sesi.
-3. Isi YDP, NYDP, SU, Naib SU, Bendahari serta enam ahli MJK.
-4. Semak nama dan organisasi dalam pratonton.
+3. Isi YDP, NYDP, SU, Naib SU, Bendahari, enam MJK, enam AJK Daerah dan dua Juruaudit Dalaman.
+4. Semak carta organisasi dan senarai nama; muat turun PNG draf untuk semakan.
 5. Simpan Draf untuk rekod yang belum hendak dipaparkan.
 6. Selepas keputusan rasmi disahkan, tandakan pengesahan dan Terbitkan.
 
-Draf boleh tidak lengkap. Penerbitan memerlukan 11 nama dan organisasi,
-tanpa nama berulang berdasarkan normalisasi ruang dan huruf besar/kecil.
+Draf boleh tidak lengkap. Penerbitan baharu memerlukan 19 nama dan organisasi.
+Nama berulang ditolak dalam kumpulan yang sama (teras 11, daerah 6 atau audit 2)
+berdasarkan normalisasi ruang dan huruf besar/kecil. Orang yang sama boleh
+direkodkan dalam kumpulan berlainan berdasarkan keputusan rasmi urusetia.
 Jumlah undi sah adalah input manual dan pilihan; gambar serta profil juga pilihan.
 Foto menggunakan URL HTTPS, bukan muat naik fail.
 Organisasi daripada cadangan nama mungkin singkatan; admin perlu menyemaknya.
@@ -114,6 +117,20 @@ Paparan awam membaca snapshot DITERBITKAN terakhir yang ditambah,
 bukan memilih sesi mengikut tahun.
 UI pemilihan arkib dan fungsi nyahterbit belum dibina.
 
+### Carta organisasi (disediakan 15 Oktober 2026, belum deploy)
+
+- Susunan: YDP/NYDP, SU/Bendahari/NSU, enam MJK, enam AJK Daerah dan dua Juruaudit Dalaman.
+- Pratonton mengikut input semasa; PNG draf berlabel Draf. Muat turun tidak menyimpan rekod.
+- Carta dan PNG rasmi pada laman utama membaca snapshot DITERBITKAN sahaja.
+- PNG 3600 px lebar; carta boleh dileret pada telefon.
+- Foto HTTPS diambil daripada borang. Foto gagal atau tidak membenarkan CORS dieksport sebagai inisial.
+- Rekod 11 AJK lama masih boleh dibaca. Draf lama dinaik taraf kepada 19 ruangan;
+  penerbitan baharu mesti melengkapkan kesemua ruangan.
+- Blok LappsOrgChart dalam Admin.html dan index.html mesti sama. Inline menyokong GitHub Pages dan GAS.
+- Header AJKSesi dan endpoint tidak berubah; tab baharu tidak diperlukan.
+- Push dan deploy backend Ajk.js dahulu, kemudian kemas kini frontend GitHub Pages.
+- Belum diuji pada data live; versi 28 masih rujukan deployment terakhir yang disahkan.
+
 ## Fail utama
 
 | Fail | Tujuan |
@@ -121,7 +138,7 @@ UI pemilihan arkib dan fungsi nyahterbit belum dibina.
 | `Code.js` | Route GAS, semakan ahli, health check, ranking dan dispatcher POST |
 | `Ajk.js` | Validasi, akses PIN, snapshot AJK dan bacaan awam |
 | `Admin.html` | Admin GitHub Pages, carta dan borang AJK |
-| `index.html` | Portal, AGM, ADMIN ACCESS dan kad AJK diterbitkan |
+| `index.html` | Portal, AGM, ADMIN ACCESS dan carta AJK diterbitkan |
 | `Semakan.html` | Semakan ahli melalui GAS |
 | `appsscript.json` | Manifest Apps Script |
 | `.clasp.json` | Sasaran projek Apps Script |

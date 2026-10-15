@@ -1,6 +1,13 @@
 function ajkRoles_() {
   return ['YDP', 'NYDP', 'SU', 'NSU', 'BENDAHARI',
-    'MJK1', 'MJK2', 'MJK3', 'MJK4', 'MJK5', 'MJK6'];
+    'MJK1', 'MJK2', 'MJK3', 'MJK4', 'MJK5', 'MJK6',
+    'DAERAH1', 'DAERAH2', 'DAERAH3', 'DAERAH4', 'DAERAH5', 'DAERAH6',
+    'AUDIT1', 'AUDIT2'];
+}
+
+function ajkRoleGroup_(role) {
+  return role.indexOf('DAERAH') === 0 ? 'DAERAH' :
+    role.indexOf('AUDIT') === 0 ? 'AUDIT' : 'TERAS';
 }
 
 function ajkSession_(value) {
@@ -55,11 +62,17 @@ function ajkLatest_(sheet, sesi, publishedOnly) {
 }
 
 function ajkMembers_(members, publish) {
-  if (!Array.isArray(members) || members.length !== 11) {
-    throw new Error('Borang mesti mempunyai 11 ruangan AJK.');
+  if (!Array.isArray(members) ||
+      (members.length !== 19 && (publish || members.length !== 11))) {
+    throw new Error('Borang mesti mempunyai 19 ruangan AJK. Muat semula sesi.');
   }
 
   const roles = ajkRoles_();
+  // Draf daripada frontend lama boleh dinaik taraf tanpa mengubah sejarah.
+  if (members.length === 11 && roles.slice(0, 11).every(role =>
+      members.filter(member => member && member.role === role).length === 1)) {
+    members = members.concat(roles.slice(11).map(role => ({ role: role })));
+  }
   const seen = new Set();
 
   function text(value, limit, label) {
@@ -100,9 +113,9 @@ function ajkMembers_(members, publish) {
     }
 
     if (nama) {
-      const key = nama.toUpperCase();
+      const key = ajkRoleGroup_(role) + ':' + nama.toUpperCase();
       if (seen.has(key)) {
-        throw new Error('Nama berulang dalam barisan AJK: ' + nama);
+        throw new Error('Nama berulang dalam kumpulan ' + ajkRoleGroup_(role) + ': ' + nama);
       }
       seen.add(key);
     } else if (organisasi || foto || profil || undi !== null) {
@@ -169,6 +182,10 @@ function runAdminAjk(action, pin, payload) {
     const sheet = ajkSheet_(true);
     const previous = ajkLatest_(sheet, sesi, false);
     const version = previous ? previous.version : 0;
+
+    if (payload.members.length === 11 && previous && previous.members.length > 11) {
+      throw new Error('Sesi ini menggunakan 19 ruangan AJK. Muat semula halaman admin sebelum menyimpan.');
+    }
 
     if (payload.expectedVersion !== version) {
       throw new Error('Rekod telah berubah. Muat semula borang sebelum menyimpan.');
